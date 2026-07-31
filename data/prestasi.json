@@ -1,0 +1,40 @@
+{
+  "title": "Setiap usaha punya cerita.",
+  "achievements": [
+    {
+      "year": "2024",
+      "level": "Kecamatan",
+      "title": "Juara harapan lomba pramuka",
+      "category": "Pramuka",
+      "description": "Contoh capaian siswa dalam kegiatan pramuka tingkat Kecamatan Ngrayun."
+    },
+    {
+      "year": "2023",
+      "level": "Kabupaten",
+      "title": "Peserta terbaik lomba mewarnai",
+      "category": "Seni",
+      "description": "Contoh dokumentasi capaian kreativitas siswa."
+    },
+    {
+      "year": "2023",
+      "level": "Sekolah",
+      "title": "Program penghijauan sekolah",
+      "category": "Lingkungan",
+      "description": "Partisipasi aktif dalam merawat lingkungan belajar."
+    },
+    {
+      "year": "2022",
+      "level": "Kecamatan",
+      "title": "Juara tari tradisional",
+      "category": "Seni budaya",
+      "description": "Contoh capaian dalam peringatan Hari Kemerdekaan RI."
+    },
+    {
+      "year": "2026",
+      "level": "Provinsi",
+      "title": "Test",
+      "category": "Test2",
+      "description": "testttt"
+    }
+  ]
+}

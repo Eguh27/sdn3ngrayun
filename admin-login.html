@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Admin — SDN 3 Ngrayun</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell admin-login-shell">
+    <a class="admin-back" href="/">← Kembali ke website</a>
+    <section class="admin-heading"><span class="eyebrow">Akses pengelola</span><h1>Login admin.</h1><p>Masukkan password pengelola untuk membuka dan mengubah konten sekolah.</p></section>
+    <form id="adminLoginForm" class="admin-form admin-login-form">
+      <div class="admin-section"><label class="password-field">Password admin<input type="password" id="adminPassword" autocomplete="current-password" required autofocus></label></div>
+      <div class="admin-save"><button type="submit" class="btn btn-primary">Masuk ke dashboard</button><p id="adminLoginMessage" role="status" aria-live="polite"></p></div>
+    </form>
+  </main>
+  <script src="/js/admin-login.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+  "school": {
+    "name": "SDN 3 Ngrayun",
+    "location": "Desa Sambiganen, Kec. Ngrayun",
+    "address": "Dusun Sambi, Desa Sambiganen, Kecamatan Ngrayun, Kabupaten Ponorogo, Jawa Timur 63464",
+    "npsn": "123456",
+    "accreditation": "-",
+    "established": "19xx",
+    "status": "Negeri",
+    "students": "xx",
+    "teachers": "xx",
+    "principal": "Nama Kepala Sekolah (contoh)",
+    "phone": "(0352) xxx-xxxx",
+    "email": "sdn3ngrayun@contoh.sch.id",
+    "hours": "Senin–Sabtu, 07.00–13.00 WIB · Minggu libur",
+    "profile": "SDN 3 Ngrayun merupakan sekolah dasar negeri yang berlokasi di Dusun Sambi, Desa Sambiganen, Kecamatan Ngrayun, Kabupaten Ponorogo, Jawa Timur.",
+    "vision": "Terwujudnya peserta didik yang beriman, bertakwa, cerdas, mandiri, dan berbudaya lingkungan."
+  },
+  "content": {
+    "albumTitle": "Potongan hari-hari yang layak diingat."
+  }
+}

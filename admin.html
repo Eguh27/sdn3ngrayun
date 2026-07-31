@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Konten — SDN 3 Ngrayun</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="admin-page">
+  <main class="admin-shell">
+    <div class="admin-toolbar"><a class="admin-back" href="/">← Lihat website</a><button type="button" id="logoutButton" class="admin-remove">Keluar</button></div>
+    <section class="admin-heading"><span class="eyebrow">Pengelolaan konten</span><h1>Perbarui data sekolah.</h1><p>Perubahan akan disimpan di <code>data/site.json</code> dan langsung dipakai website.</p></section>
+    <form id="adminForm" class="admin-form">
+      <div class="admin-section"><h2>Identitas sekolah</h2><div class="admin-fields">
+        <label>Nama sekolah<input name="name" required></label><label>Lokasi singkat<input name="location"></label><label class="full">Alamat lengkap<textarea name="address" rows="3"></textarea></label><label>NPSN<input name="npsn"></label><label>Akreditasi<input name="accreditation"></label><label>Tahun berdiri<input name="established"></label><label>Status<input name="status"></label>
+      </div></div>
+      <div class="admin-section"><h2>Orang dan angka</h2><div class="admin-fields"><label>Nama kepala sekolah<input name="principal"></label><label>Jumlah siswa<input name="students"></label><label>Jumlah guru<input name="teachers"></label></div></div>
+      <div class="admin-section"><h2>Kontak</h2><div class="admin-fields"><label>Telepon / WhatsApp<input name="phone"></label><label>Email<input type="email" name="email"></label><label class="full">Jam operasional<input name="hours"></label></div></div>
+      <div class="admin-section"><h2>Narasi</h2><div class="admin-fields"><label class="full">Profil singkat<textarea name="profile" rows="5"></textarea></label><label class="full">Visi sekolah<textarea name="vision" rows="4"></textarea></label></div></div>
+      <div class="admin-section"><h2>Judul halaman</h2><div class="admin-fields"><label class="full">Halaman ekstrakurikuler<input name="extracurricularTitle"></label><label class="full">Halaman album<input name="albumTitle"></label><label class="full">Halaman prestasi<input name="achievementTitle"></label></div></div>
+      <div class="admin-section"><div class="admin-section-head"><div><h2>Daftar prestasi</h2><p>Tambah, ubah, atau hapus capaian. Urutan pertama tampil sebagai sorotan.</p></div><button type="button" id="addAchievement" class="admin-add">+ Tambah prestasi</button></div><div id="achievementFields" class="achievement-fields"></div></div>
+      <div class="admin-save"><button type="submit" class="btn btn-primary">Simpan perubahan</button><p id="adminMessage" role="status" aria-live="polite"></p></div>
+    </form>
+  </main>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
