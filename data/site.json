@@ -17,6 +17,14 @@
     "vision": "Terwujudnya Generasi Unggul, Mandiri, Religius, Berkarakter dan Berbudaya Lingkungan"
   },
   "content": {
-    "albumTitle": "Potongan hari-hari yang layak diingat."
+    "albumTitle": "Potongan hari-hari yang layak diingat.",
+    "images": {
+      "hero": "",
+      "views": { "front": "", "left": "", "right": "" },
+      "gallery": {
+        "learning": "", "ceremony": "", "scouts": "", "achievements": "",
+        "environment": "", "specialDay": ""
+      }
+    }
   }
 }

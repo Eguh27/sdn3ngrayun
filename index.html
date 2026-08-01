@@ -29,6 +29,8 @@
         <li><a href="#ekskul">Ekstrakurikuler</a></li>
         <li><a href="#prestasi">Prestasi</a></li>
         <li><a href="#galeri">Galeri</a></li>
+        <li><a href="#berita">Berita</a></li>
+        <li><a href="#video">Video</a></li>
         <li><a href="#kontak">Kontak</a></li>
       </ul>
     </nav>
@@ -53,7 +55,7 @@
           <a href="#kontak" class="btn btn-outline">Hubungi Kami</a>
         </div>
       </div>
-      <div class="hero-scene reveal" aria-label="Ilustrasi suasana sekolah di perbukitan">
+      <div class="hero-scene reveal" data-image="content.images.hero" aria-label="Foto utama sekolah">
         <div class="sun">SDN<br>03</div>
         <div class="hero-card">
           <span class="card-label">Keluarga besar kami</span>
@@ -100,6 +102,11 @@
           <div class="info-card"><div class="ic-label">Jumlah Siswa</div><div class="ic-value" data-editable data-content="school.students">xx</div><div class="ic-sub">Data menyusul</div></div>
           <div class="info-card"><div class="ic-label">Jumlah Guru</div><div class="ic-value" data-editable data-content="school.teachers">xx</div><div class="ic-sub">Data menyusul</div></div>
         </div>
+      </div>
+      <div class="school-views reveal" aria-label="Tampak area sekolah">
+        <figure class="school-view" data-image="content.images.views.front"><figcaption><span>01</span>Tampak depan sekolah</figcaption></figure>
+        <figure class="school-view" data-image="content.images.views.left"><figcaption><span>02</span>Sisi kiri / halaman</figcaption></figure>
+        <figure class="school-view" data-image="content.images.views.right"><figcaption><span>03</span>Sisi kanan / lingkungan</figcaption></figure>
       </div>
     </div>
   </section>
@@ -206,13 +213,29 @@
         <p>Kumpulan foto kegiatan dan momen di SDN 3 Ngrayun. <span data-editable>Gunakan foto landscape rasio 16:9, minimal 1600 × 900 px; objek utama sebaiknya berada di bagian tengah agar aman saat dipotong oleh kartu.</span></p>
       </div>
       <div class="galeri-grid reveal">
-        <div class="g-item g1" data-detail-card data-card-title="Kegiatan Belajar Mengajar" data-card-detail="Ruang untuk menyimpan foto kegiatan belajar di kelas, kerja kelompok, dan momen literasi siswa." role="button" tabindex="0" aria-label="Buka detail Kegiatan Belajar Mengajar"><span>Kegiatan Belajar Mengajar</span></div>
-        <div class="g-item g2" data-detail-card data-card-title="Upacara Bendera" data-card-detail="Dokumentasi upacara rutin, peringatan hari besar, dan pembiasaan disiplin di sekolah." role="button" tabindex="0" aria-label="Buka detail Upacara Bendera"><span>Upacara Bendera</span></div>
-        <div class="g-item g3" data-detail-card data-card-title="Ekstrakurikuler Pramuka" data-card-detail="Simpan foto kegiatan latihan, jelajah, permainan kelompok, dan pembelajaran karakter." role="button" tabindex="0" aria-label="Buka detail Ekstrakurikuler Pramuka"><span>Ekstrakurikuler Pramuka</span></div>
-        <div class="g-item g4" data-detail-card data-card-title="Lomba &amp; Prestasi" data-card-detail="Tempat untuk menampilkan dokumentasi lomba, penyerahan penghargaan, serta karya siswa." role="button" tabindex="0" aria-label="Buka detail Lomba dan Prestasi"><span>Lomba &amp; Prestasi</span></div>
-        <div class="g-item g5" data-detail-card data-card-title="Lingkungan Sekolah" data-card-detail="Dokumentasi kebun, halaman, kerja bakti, dan suasana sekolah yang asri." role="button" tabindex="0" aria-label="Buka detail Lingkungan Sekolah"><span>Lingkungan Sekolah</span></div>
+        <div class="g-item g1" data-image="content.images.gallery.learning" data-detail-card data-card-title="Kegiatan Belajar Mengajar" data-card-detail="Ruang untuk menyimpan foto kegiatan belajar di kelas, kerja kelompok, dan momen literasi siswa." role="button" tabindex="0" aria-label="Buka detail Kegiatan Belajar Mengajar"><span>Kegiatan Belajar Mengajar</span></div>
+        <div class="g-item g2" data-image="content.images.gallery.ceremony" data-detail-card data-card-title="Upacara Bendera" data-card-detail="Dokumentasi upacara rutin, peringatan hari besar, dan pembiasaan disiplin di sekolah." role="button" tabindex="0" aria-label="Buka detail Upacara Bendera"><span>Upacara Bendera</span></div>
+        <div class="g-item g3" data-image="content.images.gallery.scouts" data-detail-card data-card-title="Ekstrakurikuler Pramuka" data-card-detail="Simpan foto kegiatan latihan, jelajah, permainan kelompok, dan pembelajaran karakter." role="button" tabindex="0" aria-label="Buka detail Ekstrakurikuler Pramuka"><span>Ekstrakurikuler Pramuka</span></div>
+        <div class="g-item g4" data-image="content.images.gallery.achievements" data-detail-card data-card-title="Lomba &amp; Prestasi" data-card-detail="Tempat untuk menampilkan dokumentasi lomba, penyerahan penghargaan, serta karya siswa." role="button" tabindex="0" aria-label="Buka detail Lomba dan Prestasi"><span>Lomba &amp; Prestasi</span></div>
+        <div class="g-item g5" data-image="content.images.gallery.environment" data-detail-card data-card-title="Lingkungan Sekolah" data-card-detail="Dokumentasi kebun, halaman, kerja bakti, dan suasana sekolah yang asri." role="button" tabindex="0" aria-label="Buka detail Lingkungan Sekolah"><span>Lingkungan Sekolah</span></div>
       </div>
       <a class="section-link" href="album.html">Buka album dokumentasi <span>→</span></a>
+    </div>
+  </section>
+
+  <section class="news-section" id="berita">
+    <div class="wrap">
+      <div class="section-head reveal"><span class="eyebrow">Kabar terbaru</span><h2>Berita Sekolah</h2><p>Pengumuman, kegiatan, dan cerita terbaru dari SDN 3 Ngrayun.</p></div>
+      <div class="news-grid reveal" data-news><p class="empty-content">Belum ada berita yang dipublikasikan.</p></div>
+      <a class="section-link" href="berita.html">Lihat semua berita <span>→</span></a>
+    </div>
+  </section>
+
+  <section class="video-section" id="video">
+    <div class="wrap">
+      <div class="section-head reveal"><span class="eyebrow">Dokumentasi video</span><h2>Video SDN 3 Ngrayun</h2><p>Rekaman kegiatan dan cerita sekolah dari kanal YouTube kami.</p></div>
+      <div class="video-grid reveal" data-videos><p class="empty-content">Video dari kanal sekolah akan tampil di sini.</p></div>
+      <a class="section-link" data-channel-link hidden target="_blank" rel="noopener">Kunjungi channel YouTube <span>↗</span></a>
     </div>
   </section>
 

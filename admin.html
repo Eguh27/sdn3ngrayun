@@ -19,9 +19,52 @@
       <div class="admin-section"><h2>Narasi</h2><div class="admin-fields"><label class="full">Profil singkat<textarea name="profile" rows="5"></textarea></label><label class="full">Visi sekolah<textarea name="vision" rows="4"></textarea></label></div></div>
       <div class="admin-section"><h2>Judul halaman</h2><div class="admin-fields"><label class="full">Halaman ekstrakurikuler<input name="extracurricularTitle"></label><label class="full">Halaman album<input name="albumTitle"></label><label class="full">Halaman prestasi<input name="achievementTitle"></label></div></div>
       <div class="admin-section"><div class="admin-section-head"><div><h2>Daftar prestasi</h2><p>Tambah, ubah, atau hapus capaian. Urutan pertama tampil sebagai sorotan.</p></div><button type="button" id="addAchievement" class="admin-add">+ Tambah prestasi</button></div><div id="achievementFields" class="achievement-fields"></div></div>
+      <div class="admin-section"><div class="admin-section-head"><div><h2>Berita sekolah</h2><p>Berita akan muncul di beranda dan halaman Berita. Isi tautan hanya bila berita lengkapnya berada di halaman lain.</p></div><button type="button" id="addNews" class="admin-add">+ Tambah berita</button></div><div id="newsFields" class="achievement-fields"></div></div>
+      <div class="admin-section"><div class="admin-section-head"><div><h2>Video YouTube</h2><p>Tempel URL video YouTube biasa atau URL embed. Video akan ditampilkan langsung di website.</p></div><button type="button" id="addVideo" class="admin-add">+ Tambah video</button></div><div class="admin-fields"><label class="full">URL channel YouTube sekolah<input type="url" name="channelUrl" placeholder="https://www.youtube.com/@sdn3ngrayun"></label></div><div id="videoFields" class="achievement-fields"></div></div>
+      <div class="admin-section"><div class="admin-section-head"><div><h2>Foto untuk website</h2><p>Setiap foto harus dipasang ke tempat tampilnya. Setelah unggah, pilih “Pasang sebagai” pada kartu foto—foto akan langsung muncul di beranda, profil, atau album.</p></div></div>
+        <div class="img-manager">
+          <div class="img-toolbar">
+            <label class="img-folder-label">Jenis foto
+              <select id="imageFolder" class="img-folder-select">
+                <option value="profil">Foto sekolah — beranda &amp; profil</option>
+                <option value="galeri">Album — kegiatan &amp; dokumentasi</option>
+                <option value="ekskul">Arsip ekstrakurikuler</option>
+                <option value="prestasi">Arsip prestasi &amp; lomba</option>
+              </select>
+            </label>
+            <label class="img-upload-btn btn btn-primary" for="imageInput">+ Pilih Gambar</label>
+            <input type="file" id="imageInput" accept="image/png,image/jpeg,image/webp" hidden>
+            <span class="img-hint">PNG / JPG / WEBP — maks. 25 MB</span>
+          </div>
+          <p class="image-guide" id="imageGuide"></p>
+          <div class="img-grid" id="imageGrid"></div>
+          <p class="img-empty" id="imageEmpty">Belum ada gambar di folder ini.</p>
+        </div>
+      </div>
       <div class="admin-save"><button type="submit" class="btn btn-primary">Simpan perubahan</button><p id="adminMessage" role="status" aria-live="polite"></p></div>
     </form>
   </main>
+
+  <!-- Modal crop + konversi WebP -->
+  <dialog class="crop-modal" id="cropDialog">
+    <div class="crop-modal-head"><h2>Potong &amp; Konversi</h2><button type="button" class="detail-modal-close" id="cropClose" aria-label="Tutup">×</button></div>
+    <div class="crop-stage">
+      <div class="crop-frame" id="cropFrame"><img id="cropImage" alt="Pratinjau gambar" draggable="false"></div>
+      <div class="crop-preview-wrap"><span>Hasil</span><canvas id="cropPreview" width="320" height="240"></canvas></div>
+    </div>
+    <div class="crop-controls">
+      <label>Lebar (px) <input type="number" id="cropWidth" min="16" value="800"></label>
+      <label>Rasio <select id="cropRatio">
+        <option value="0">Bebas</option>
+        <option value="1">1:1 (persegi)</option>
+        <option value="1.333">4:3</option>
+        <option value="1.777">16:9</option>
+        <option value="3">3:1 (spanduk)</option>
+      </select></label>
+      <label>Kualitas <input type="range" id="cropQuality" min="0.4" max="1" step="0.05" value="0.82"><span id="cropQualityLabel">82%</span></label>
+      <button type="button" id="cropApply" class="btn btn-primary">Simpan WebP</button>
+    </div>
+  </dialog>
   <script src="/js/admin.js"></script>
 </body>
 </html>

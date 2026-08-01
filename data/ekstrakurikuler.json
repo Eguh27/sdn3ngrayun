@@ -7,7 +7,10 @@
       "summary": "Mengenalkan seni karawitan dan gamelan khas Jawa.",
       "description": "Latihan karawitan untuk mengenalkan dan melestarikan seni musik tradisional Jawa.",
       "details": [
-        { "label": "Jadwal", "value": "Minggu 1" }
+        {
+          "label": "Jadwal",
+          "value": "Minggu 1"
+        }
       ]
     },
     {
@@ -16,7 +19,10 @@
       "summary": "Melatih kemandirian, kedisiplinan, dan kerja sama tim.",
       "description": "Kegiatan pramuka yang membentuk kemandirian, kedisiplinan, kepemimpinan, dan kerja sama regu.",
       "details": [
-        { "label": "Jadwal", "value": "Minggu 2" }
+        {
+          "label": "Jadwal",
+          "value": "Minggu 2"
+        }
       ]
     },
     {
@@ -25,7 +31,10 @@
       "summary": "Sepak bola, voli, dan atletik untuk menjaga kebugaran serta jiwa sportif.",
       "description": "Pembinaan olahraga untuk menjaga kebugaran, sportivitas, dan kebiasaan bergerak aktif.",
       "details": [
-        { "label": "Jadwal", "value": "Minggu 3" }
+        {
+          "label": "Jadwal",
+          "value": "Minggu 3"
+        }
       ]
     },
     {
@@ -34,9 +43,11 @@
       "summary": "Mengenalkan gerak dan seni tari tradisional.",
       "description": "Latihan tari untuk mengasah keterampilan gerak dan kecintaan pada seni tradisional.",
       "details": [
-        { "label": "Jadwal", "value": "Minggu 4" }
+        {
+          "label": "Jadwal",
+          "value": "Minggu 4"
+        }
       ]
     }
   ]
 }
-

@@ -12,14 +12,18 @@ const CONTENT_FILE = path.join(ROOT, 'data', 'site.json');
 const DATA_FILES = {
   '/api/content': CONTENT_FILE,
   '/api/prestasi': path.join(ROOT, 'data', 'prestasi.json'),
-  '/api/ekstrakurikuler': path.join(ROOT, 'data', 'ekstrakurikuler.json')
+  '/api/ekstrakurikuler': path.join(ROOT, 'data', 'ekstrakurikuler.json'),
+  '/api/news': path.join(ROOT, 'data', 'news.json'),
+  '/api/videos': path.join(ROOT, 'data', 'videos.json')
 };
 const HOST = process.env.HOST || '0.0.0.0';
 const PORT = Number(process.env.PORT || 4147);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 const sessions = new Map();
-const MIME = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml' };
+const MIME = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.avif': 'image/avif', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '.ico': 'image/x-icon' };
+const IMAGES_DIR = path.join(ROOT, 'images');
+const IMAGE_FOLDERS = new Set(['profil', 'galeri', 'ekskul', 'prestasi']);
 
 function send(res, status, body, type = 'text/plain; charset=utf-8') {
   res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' });
@@ -62,7 +66,7 @@ async function readBody(req) {
   let body = '';
   for await (const chunk of req) {
     body += chunk;
-    if (body.length > 150_000) throw new Error('Payload terlalu besar');
+    if (body.length > 30_000_000) throw new Error('Payload terlalu besar');
   }
   return body;
 }
@@ -74,6 +78,11 @@ function validContent(value) {
 function validData(value, pathname) {
   if (pathname === '/api/content') return validContent(value);
   return value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function safeFileName(name) {
+  const base = path.basename(String(name || 'gambar')).replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]+/g, '-').slice(0, 60);
+  return base || 'gambar';
 }
 
 async function api(req, res, pathname) {
@@ -105,6 +114,72 @@ async function api(req, res, pathname) {
     sessions.delete(sessionToken(req));
     res.setHeader('Set-Cookie', 'sdn_admin_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0');
     send(res, 200, JSON.stringify({ ok: true }), MIME['.json']);
+    return true;
+  }
+  if (pathname === '/api/images' && req.method === 'GET') {
+    if (!authorised(req)) {
+      send(res, 401, JSON.stringify({ error: 'Silakan login sebagai admin terlebih dahulu.' }), MIME['.json']);
+      return true;
+    }
+    try {
+      await fsp.mkdir(IMAGES_DIR, { recursive: true });
+      const folder = String(new URL(req.url, 'http://localhost').searchParams.get('folder') || 'galeri').replace(/[^a-zA-Z0-9_-]/g, '');
+      const dir = path.join(IMAGES_DIR, folder);
+      if (dir !== IMAGES_DIR && !dir.startsWith(`${IMAGES_DIR}${path.sep}`)) throw new Error('Folder tidak valid');
+      await fsp.mkdir(dir, { recursive: true });
+      const entries = await fsp.readdir(dir, { withFileTypes: true });
+      const files = entries.filter((entry) => entry.isFile() && MIME[path.extname(entry.name).toLowerCase()]).map((entry) => ({ name: entry.name, url: `/images/${folder}/${entry.name}` }));
+      send(res, 200, JSON.stringify({ folder, files }), MIME['.json']);
+    } catch (error) {
+      send(res, 400, JSON.stringify({ error: error.message || 'Tidak dapat memuat gambar' }), MIME['.json']);
+    }
+    return true;
+  }
+  if (pathname === '/api/upload' && req.method === 'POST') {
+    if (!authorised(req)) {
+      send(res, 401, JSON.stringify({ error: 'Silakan login sebagai admin terlebih dahulu.' }), MIME['.json']);
+      return true;
+    }
+    try {
+      const payload = JSON.parse(await readBody(req));
+      const folder = String(payload.folder || 'galeri').replace(/[^a-zA-Z0-9_-]/g, '');
+      const dir = path.join(IMAGES_DIR, folder);
+      if (dir !== IMAGES_DIR && !dir.startsWith(`${IMAGES_DIR}${path.sep}`)) throw new Error('Folder tidak valid');
+      if (!IMAGE_FOLDERS.has(folder)) throw new Error('Folder gambar tidak dikenal');
+      const dataUrl = String(payload.dataUrl || '');
+      const match = dataUrl.match(/^data:image\/(webp|png|jpeg);base64,(.+)$/);
+      if (!match) throw new Error('Data gambar tidak valid');
+      const ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+      const buffer = Buffer.from(match[2], 'base64');
+      if (buffer.length > 25_000_000) throw new Error('Gambar terlalu besar');
+      await fsp.mkdir(dir, { recursive: true });
+      const name = `${safeFileName(payload.name)}-${Date.now().toString(36)}.${ext}`;
+      await fsp.writeFile(path.join(dir, name), buffer);
+      send(res, 200, JSON.stringify({ ok: true, url: `/images/${folder}/${name}`, name }), MIME['.json']);
+    } catch (error) {
+      send(res, 400, JSON.stringify({ error: error.message || 'Gagal mengunggah gambar' }), MIME['.json']);
+    }
+    return true;
+  }
+  if (pathname === '/api/image/delete' && req.method === 'POST') {
+    if (!authorised(req)) {
+      send(res, 401, JSON.stringify({ error: 'Silakan login sebagai admin terlebih dahulu.' }), MIME['.json']);
+      return true;
+    }
+    try {
+      const payload = JSON.parse(await readBody(req));
+      const folder = String(payload.folder || '').replace(/[^a-zA-Z0-9_-]/g, '');
+      const name = path.basename(String(payload.name || ''));
+      const dir = path.join(IMAGES_DIR, folder);
+      if (dir !== IMAGES_DIR && !dir.startsWith(`${IMAGES_DIR}${path.sep}`)) throw new Error('Folder tidak valid');
+      if (!IMAGE_FOLDERS.has(folder) || !name) throw new Error('Gambar tidak dikenal');
+      const target = path.join(dir, name);
+      if (!target.startsWith(`${dir}${path.sep}`)) throw new Error('Nama file tidak valid');
+      await fsp.unlink(target);
+      send(res, 200, JSON.stringify({ ok: true }), MIME['.json']);
+    } catch (error) {
+      send(res, 400, JSON.stringify({ error: error.message || 'Gagal menghapus gambar' }), MIME['.json']);
+    }
     return true;
   }
   const dataFile = DATA_FILES[pathname];
@@ -151,7 +226,9 @@ async function serveStatic(req, res, pathname) {
     '/admin/dashboard': 'admin.html',
     '/ekstrakurikuler': 'ekstrakurikuler.html',
     '/album': 'album.html',
-    '/prestasi': 'prestasi.html'
+    '/prestasi': 'prestasi.html',
+    '/berita': 'berita.html',
+    '/video': 'video.html'
   };
   const requested = routes[pathname] || pathname.slice(1);
   const filePath = path.resolve(ROOT, requested || 'index.html');
