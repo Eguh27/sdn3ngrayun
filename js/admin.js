@@ -85,11 +85,30 @@
   }
 
   function addNewsCard(item) {
+    var author = (item.author && typeof item.author === 'object') ? item.author : {};
     var card = document.createElement('fieldset'); card.className = 'achievement-editor'; card.dataset.label = 'Berita';
     var top = document.createElement('div'); top.className = 'achievement-editor-top';
     var remove = document.createElement('button'); remove.type = 'button'; remove.className = 'admin-remove'; remove.textContent = 'Hapus'; remove.addEventListener('click', function () { card.remove(); }); top.appendChild(remove);
     var fields = document.createElement('div'); fields.className = 'admin-fields';
-    fields.append(field('Tanggal', 'date', item.date), field('Judul berita', 'title', item.title), field('Ringkasan', 'excerpt', item.excerpt, true), field('Tautan berita lengkap (opsional)', 'url', item.url)); fields.children[2].classList.add('full'); fields.children[3].classList.add('full');
+    var dateField = field('Tanggal', 'date', item.date);
+    var titleField = field('Judul berita', 'title', item.title);
+    titleField.classList.add('full');
+    var subtitleField = field('Subjudul (opsional)', 'subtitle', item.subtitle);
+    subtitleField.classList.add('full');
+    var excerptField = field('Ringkasan singkat', 'excerpt', item.excerpt, true);
+    excerptField.classList.add('full');
+    var bodyField = field('Isi artikel lengkap', 'articleBody', item.body || item.articleBody);
+    bodyField.classList.add('full');
+    bodyField.querySelector('textarea,input').rows = 10;
+    var imageField = field('URL gambar artikel (salin dari bagian Foto di bawah)', 'image', item.image);
+    imageField.classList.add('full');
+    var imageSourceField = field('Sumber / kredit foto', 'imageSource', item.imageSource);
+    imageSourceField.classList.add('full');
+    var authorNameField = field('Nama penulis', 'authorName', author.name);
+    var authorRoleField = field('Jabatan / peran penulis', 'authorRole', author.role);
+    var urlField = field('Tautan sumber eksternal (opsional)', 'url', item.url);
+    urlField.classList.add('full');
+    fields.append(dateField, titleField, subtitleField, excerptField, bodyField, imageField, imageSourceField, authorNameField, authorRoleField, urlField);
     card.append(top, fields); newsFields.appendChild(card);
   }
   function renderNews(items) { newsFields.replaceChildren(); items.forEach(addNewsCard); }
@@ -123,7 +142,7 @@
     current.site.content.albumTitle = form.elements.albumTitle.value.trim();
     current.extracurricular.title = form.elements.extracurricularTitle.value.trim();
     current.prestasi.title = form.elements.achievementTitle.value.trim();
-    current.news.items = Array.prototype.map.call(newsFields.querySelectorAll('.achievement-editor'), function (card) { return { date: card.elements.date.value.trim(), title: card.elements.title.value.trim(), excerpt: card.elements.excerpt.value.trim(), url: card.elements.url.value.trim() }; }).filter(function (item) { return item.title; });
+    current.news.items = Array.prototype.map.call(newsFields.querySelectorAll('.achievement-editor'), function (card) { return { date: card.elements.date.value.trim(), title: card.elements.title.value.trim(), subtitle: card.elements.subtitle.value.trim(), excerpt: card.elements.excerpt.value.trim(), body: card.elements.articleBody.value.trim(), image: card.elements.image.value.trim(), imageSource: card.elements.imageSource.value.trim(), author: { name: card.elements.authorName.value.trim(), role: card.elements.authorRole.value.trim() }, url: card.elements.url.value.trim() }; }).filter(function (item) { return item.title; });
     current.videos.channelUrl = form.elements.channelUrl.value.trim();
     current.videos.items = Array.prototype.map.call(videoFields.querySelectorAll('.achievement-editor'), function (card) { return { title: card.elements.title.value.trim(), url: card.elements.url.value.trim(), description: card.elements.description.value.trim() }; }).filter(function (item) { return item.title && item.url; });
     current.prestasi.achievements = Array.prototype.map.call(achievementFields.querySelectorAll('.achievement-editor'), function (card) {

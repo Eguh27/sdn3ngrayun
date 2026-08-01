@@ -87,13 +87,15 @@
     }
     return card;
   }
-  function newsCard(item) {
+  function newsCard(item, index) {
     var article = document.createElement('article'); article.className = 'news-card';
     var date = document.createElement('span'); date.className = 'news-date'; date.textContent = item.date || 'Berita sekolah';
     var title = document.createElement('h3'); title.textContent = item.title || 'Berita sekolah';
     var excerpt = document.createElement('p'); excerpt.textContent = item.excerpt || '';
     article.append(date, title, excerpt);
-    if (item.url) { var link = document.createElement('a'); link.href = item.url; link.target = '_blank'; link.rel = 'noopener'; link.textContent = 'Baca selengkapnya →'; article.appendChild(link); }
+    var hasDetail = item.body && item.body.trim();
+    if (hasDetail) { var link = document.createElement('a'); link.href = '/berita?id=' + index; link.textContent = 'Baca selengkapnya →'; article.appendChild(link); }
+    else if (item.url) { var link = document.createElement('a'); link.href = item.url; link.target = '_blank'; link.rel = 'noopener'; link.textContent = 'Baca selengkapnya →'; article.appendChild(link); }
     return article;
   }
   function youtubeEmbed(url) {
@@ -144,7 +146,7 @@
         element.replaceChildren();
         items.forEach(function (item, index) { element.appendChild(extracurricularCard(item, index, detail)); });
       });
-      document.querySelectorAll('[data-news]').forEach(function (element) { var items = content.news && content.news.items; if (Array.isArray(items) && items.length) { element.replaceChildren(); items.forEach(function (item) { element.appendChild(newsCard(item)); }); } });
+      document.querySelectorAll('[data-news]').forEach(function (element) { var items = content.news && content.news.items; if (Array.isArray(items) && items.length) { element.replaceChildren(); items.forEach(function (item, index) { element.appendChild(newsCard(item, index)); }); } });
       document.querySelectorAll('[data-videos]').forEach(function (element) { var items = content.videos && content.videos.items; if (Array.isArray(items) && items.length) { element.replaceChildren(); items.forEach(function (item) { element.appendChild(videoCard(item)); }); } });
       document.querySelectorAll('[data-channel-link]').forEach(function (element) { if (content.videos && content.videos.channelUrl) { element.href = content.videos.channelUrl; element.hidden = false; } });
       if (content.school && content.school.name) document.title = document.title.replace('SDN 3 Ngrayun', content.school.name);
