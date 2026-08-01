@@ -2,39 +2,33 @@
   "title": "Setiap usaha punya cerita.",
   "achievements": [
     {
-      "year": "2024",
-      "level": "Kecamatan",
-      "title": "Juara harapan lomba pramuka",
-      "category": "Pramuka",
-      "description": "Contoh capaian siswa dalam kegiatan pramuka tingkat Kecamatan Ngrayun."
-    },
-    {
-      "year": "2023",
-      "level": "Kabupaten",
-      "title": "Peserta terbaik lomba mewarnai",
-      "category": "Seni",
-      "description": "Contoh dokumentasi capaian kreativitas siswa."
-    },
-    {
-      "year": "2023",
-      "level": "Sekolah",
-      "title": "Program penghijauan sekolah",
-      "category": "Lingkungan",
-      "description": "Partisipasi aktif dalam merawat lingkungan belajar."
-    },
-    {
-      "year": "2022",
-      "level": "Kecamatan",
-      "title": "Juara tari tradisional",
-      "category": "Seni budaya",
-      "description": "Contoh capaian dalam peringatan Hari Kemerdekaan RI."
-    },
-    {
       "year": "2026",
-      "level": "Provinsi",
-      "title": "Test",
-      "category": "Test2",
-      "description": "testttt"
+      "level": "Kecamatan",
+      "title": "Juara 3 Menyanyi Solo",
+      "category": "Seni",
+      "description": "Intan — Juara 3 lomba menyanyi solo tingkat Kecamatan Ngrayun."
+    },
+    {
+      "year": "2025",
+      "level": "Kecamatan",
+      "title": "Juara 2 O2SN Atletik Putra",
+      "category": "Olahraga",
+      "description": "Arjuna — Juara 2 O2SN cabang atletik putra tingkat Kecamatan Ngrayun."
+    },
+    {
+      "year": "2023",
+      "level": "Kecamatan",
+      "title": "Juara 2 O2SN Atletik Putri",
+      "category": "Olahraga",
+      "description": "Putri — Juara 2 O2SN cabang atletik putri tingkat Kecamatan Ngrayun."
+    },
+    {
+      "year": "2018",
+      "level": "Kecamatan",
+      "title": "Juara Umum Pramuka",
+      "category": "Pramuka",
+      "description": "Regu Putra — Juara umum lomba pramuka tingkat Kecamatan Ngrayun."
     }
   ]
 }
+

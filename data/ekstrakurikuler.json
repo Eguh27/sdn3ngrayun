@@ -2,100 +2,41 @@
   "title": "Ruang untuk mencoba, bermain, dan bertumbuh.",
   "items": [
     {
+      "icon": "🎵",
+      "title": "Karawitan",
+      "summary": "Mengenalkan seni karawitan dan gamelan khas Jawa.",
+      "description": "Latihan karawitan untuk mengenalkan dan melestarikan seni musik tradisional Jawa.",
+      "details": [
+        { "label": "Jadwal", "value": "Minggu 1" }
+      ]
+    },
+    {
       "icon": "⛺",
       "title": "Pramuka",
-      "summary": "Melatih kemandirian, kedisiplinan, dan kerja sama tim setiap minggu.",
-      "description": "Melatih kedisiplinan, kemandirian, kepemimpinan, dan kerja sama melalui kegiatan lapangan yang menyenangkan.",
+      "summary": "Melatih kemandirian, kedisiplinan, dan kerja sama tim.",
+      "description": "Kegiatan pramuka yang membentuk kemandirian, kedisiplinan, kepemimpinan, dan kerja sama regu.",
       "details": [
-        {
-          "label": "Fokus",
-          "value": "Karakter & kerja sama"
-        },
-        {
-          "label": "Catatan",
-          "value": "Jadwal menyesuaikan sekolah"
-        }
+        { "label": "Jadwal", "value": "Minggu 2" }
       ]
     },
     {
       "icon": "⚽",
       "title": "Olahraga",
       "summary": "Sepak bola, voli, dan atletik untuk menjaga kebugaran serta jiwa sportif.",
-      "description": "Wadah bermain sehat untuk mengasah sportivitas, kebugaran, dan kebiasaan bergerak aktif.",
+      "description": "Pembinaan olahraga untuk menjaga kebugaran, sportivitas, dan kebiasaan bergerak aktif.",
       "details": [
-        {
-          "label": "Kegiatan",
-          "value": "Sepak bola, voli, atletik"
-        },
-        {
-          "label": "Nilai",
-          "value": "Sehat & sportif"
-        }
+        { "label": "Jadwal", "value": "Minggu 3" }
       ]
     },
     {
-      "icon": "🎨",
-      "title": "Seni & Kerajinan",
-      "summary": "Menggambar, mewarnai, dan kerajinan tangan untuk mengasah kreativitas.",
-      "description": "Ruang berekspresi melalui menggambar, mewarnai, dan karya tangan dari bahan yang mudah ditemukan.",
+      "icon": "💃",
+      "title": "Tari",
+      "summary": "Mengenalkan gerak dan seni tari tradisional.",
+      "description": "Latihan tari untuk mengasah keterampilan gerak dan kecintaan pada seni tradisional.",
       "details": [
-        {
-          "label": "Fokus",
-          "value": "Kreativitas & ketelitian"
-        },
-        {
-          "label": "Hasil",
-          "value": "Karya siswa"
-        }
-      ]
-    },
-    {
-      "icon": "📖",
-      "title": "Baca Tulis Al-Qur'an",
-      "summary": "Bimbingan membaca dan menulis Al-Qur'an bagi siswa muslim.",
-      "description": "Pendampingan membaca dan menulis Al-Qur'an bagi siswa muslim dalam suasana yang tertib dan hangat.",
-      "details": [
-        {
-          "label": "Fokus",
-          "value": "Literasi keagamaan"
-        },
-        {
-          "label": "Catatan",
-          "value": "Sesuaikan program sekolah"
-        }
-      ]
-    },
-    {
-      "icon": "🥁",
-      "title": "Seni Musik & Tari",
-      "summary": "Mengenalkan seni musik dan tari tradisional khas Ponorogo.",
-      "description": "Mengenalkan ritme, gerak, dan kebanggaan pada seni tradisional di sekitar Ponorogo.",
-      "details": [
-        {
-          "label": "Fokus",
-          "value": "Apresiasi budaya"
-        },
-        {
-          "label": "Potensi",
-          "value": "Pentas & lomba"
-        }
-      ]
-    },
-    {
-      "icon": "🌱",
-      "title": "Sekolah Adiwiyata",
-      "summary": "Kegiatan cinta lingkungan seperti menanam dan merawat kebun sekolah.",
-      "description": "Kegiatan merawat lingkungan sekolah melalui kebun, kebersihan, dan kebiasaan hemat sumber daya.",
-      "details": [
-        {
-          "label": "Fokus",
-          "value": "Peduli lingkungan"
-        },
-        {
-          "label": "Kegiatan",
-          "value": "Tanam & rawat kebun"
-        }
+        { "label": "Jadwal", "value": "Minggu 4" }
       ]
     }
   ]
 }
+
