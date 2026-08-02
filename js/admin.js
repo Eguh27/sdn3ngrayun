@@ -9,27 +9,7 @@
   var videoFields = document.getElementById('videoFields');
   var addVideo = document.getElementById('addVideo');
   var logoutButton = document.getElementById('logoutButton');
-  var imageGuide = document.getElementById('imageGuide');
   var current;
-
-  var imageSlots = [
-    { key: 'hero', label: 'Beranda — foto utama / hero' },
-    { key: 'views.front', label: 'Profil — tampak depan sekolah' },
-    { key: 'views.left', label: 'Profil — sisi kiri / halaman' },
-    { key: 'views.right', label: 'Profil — sisi kanan / lingkungan' },
-    { key: 'gallery.learning', label: 'Album — kegiatan belajar' },
-    { key: 'gallery.ceremony', label: 'Album — upacara bendera' },
-    { key: 'gallery.scouts', label: 'Album — pramuka' },
-    { key: 'gallery.achievements', label: 'Album — lomba & prestasi' },
-    { key: 'gallery.environment', label: 'Album — lingkungan sekolah' },
-    { key: 'gallery.specialDay', label: 'Album — hari istimewa' }
-  ];
-  var folderGuide = {
-    profil: 'Untuk foto bangunan: pilih slot Beranda atau salah satu tampak sekolah di Profil.',
-    galeri: 'Untuk dokumentasi kegiatan: pilih kategori album yang sesuai setelah mengunggah.',
-    ekskul: 'Arsip ekstrakurikuler. Foto masih dapat dipasang ke slot album jika relevan.',
-    prestasi: 'Arsip lomba dan prestasi. Gunakan slot Album — lomba & prestasi untuk menampilkannya.'
-  };
 
   function setMessage(text, error) { message.textContent = text; message.classList.toggle('error', Boolean(error)); }
   function fill(data) {
@@ -49,6 +29,8 @@
     renderAchievements(current.prestasi.achievements || []);
     renderNews(current.news.items || []);
     renderVideos(current.videos.items || []);
+    renderHeroSlot();
+    renderGallerySlots();
   }
 
   function field(labelText, key, value, multiline) {
@@ -100,8 +82,15 @@
     var bodyField = field('Isi artikel lengkap', 'articleBody', item.body || item.articleBody);
     bodyField.classList.add('full');
     bodyField.querySelector('textarea,input').rows = 10;
-    var imageField = field('URL gambar artikel (salin dari bagian Foto di bawah)', 'image', item.image);
+    var imageField = field('URL gambar artikel', 'image', item.image);
     imageField.classList.add('full');
+    var imgUpBtn = document.createElement('button');
+    imgUpBtn.type = 'button'; imgUpBtn.className = 'admin-add img-upload-btn-inline';
+    imgUpBtn.textContent = '⬆ Upload foto artikel';
+    imgUpBtn.addEventListener('click', function () {
+      openUploadModal('galeri', function (url) { imageField.querySelector('input').value = url; });
+    });
+    imageField.appendChild(imgUpBtn);
     var imageSourceField = field('Sumber / kredit foto', 'imageSource', item.imageSource);
     imageSourceField.classList.add('full');
     var authorNameField = field('Nama penulis', 'authorName', author.name);
@@ -173,12 +162,9 @@
   });
 
   // ==========================================
-  // 7. Kelola Gambar — Crop & Auto-Convert WebP
+  // 7. Upload & Crop — dipakai oleh semua bagian
   // ==========================================
-  var imageFolder = document.getElementById('imageFolder');
   var imageInput = document.getElementById('imageInput');
-  var imageGrid = document.getElementById('imageGrid');
-  var imageEmpty = document.getElementById('imageEmpty');
   var cropDialog = document.getElementById('cropDialog');
   var cropFrame = document.getElementById('cropFrame');
   var cropImage = document.getElementById('cropImage');
@@ -191,129 +177,14 @@
   var cropClose = document.getElementById('cropClose');
   var cropBox = null;
   var selectedFile = null;
+  var uploadCallback = null;
+  var uploadFolder = 'galeri';
 
-  function setImageMessage(text, error) {
-    imageEmpty.textContent = text;
-    imageEmpty.classList.toggle('error', Boolean(error));
-  }
-
-  function imageValue(key) {
-    if (!current || !current.site || !current.site.content || !current.site.content.images) return '';
-    return key.split('.').reduce(function (value, part) { return value && value[part]; }, current.site.content.images);
-  }
-
-  function setImageValue(key, value) {
-    var parts = key.split('.');
-    var target = current.site.content.images;
-    parts.slice(0, -1).forEach(function (part) { target[part] = target[part] || {}; target = target[part]; });
-    target[parts[parts.length - 1]] = value;
-  }
-
-  function imageSlotSelect(url) {
-    var select = document.createElement('select');
-    select.className = 'img-slot-select';
-    var empty = document.createElement('option'); empty.value = ''; empty.textContent = 'Pasang sebagai…';
-    select.appendChild(empty);
-    imageSlots.forEach(function (slot) {
-      var option = document.createElement('option');
-      option.value = slot.key; option.textContent = slot.label;
-      if (imageValue(slot.key) === url) option.selected = true;
-      select.appendChild(option);
-    });
-    return select;
-  }
-
-  function saveImagePlacement(slot, url, button) {
-    setImageValue(slot, url);
-    if (button) { button.disabled = true; button.textContent = 'Memasang…'; }
-    fetch('/api/content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(current.site) })
-      .then(function (response) { return response.json().then(function (data) { if (!response.ok) throw new Error(data.error); }); })
-      .then(function () { setImageMessage('Foto sudah dipasang: ' + imageSlots.find(function (item) { return item.key === slot; }).label + '.'); loadImages(); })
-      .catch(function (error) { setImageMessage(error.message || 'Gagal memasang foto.', true); })
-      .finally(function () { if (button) { button.disabled = false; button.textContent = 'Pasang'; } });
-  }
-
-  function imageCard(item) {
-    var card = document.createElement('div');
-    card.className = 'img-card';
-    var img = document.createElement('img');
-    img.src = item.url;
-    img.loading = 'lazy';
-    img.alt = item.name;
-    card.appendChild(img);
-    var meta = document.createElement('div');
-    meta.className = 'img-meta';
-    var name = document.createElement('span'); name.textContent = item.name; name.title = item.name;
-    meta.appendChild(name);
-    var actions = document.createElement('div');
-    actions.className = 'img-actions';
-    var placement = document.createElement('div');
-    placement.className = 'img-placement';
-    var slotSelect = imageSlotSelect(item.url);
-    var assign = document.createElement('button'); assign.type = 'button'; assign.textContent = 'Pasang';
-    assign.addEventListener('click', function (event) {
-      event.stopPropagation();
-      if (!slotSelect.value) return setImageMessage('Pilih dulu lokasi tampil foto ini.', true);
-      saveImagePlacement(slotSelect.value, item.url, assign);
-    });
-    placement.append(slotSelect, assign);
-    var copy = document.createElement('button'); copy.type = 'button'; copy.textContent = 'Salin URL';
-    copy.addEventListener('click', function (event) {
-      event.stopPropagation();
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(item.url).then(function () {
-          copy.textContent = 'Tersalin!';
-          setTimeout(function () { copy.textContent = 'Salin URL'; }, 1500);
-        });
-      } else {
-        copy.textContent = item.url;
-      }
-    });
-    var del = document.createElement('button'); del.type = 'button'; del.className = 'admin-remove'; del.textContent = 'Hapus';
-    del.addEventListener('click', function (event) {
-      event.stopPropagation();
-      if (!window.confirm('Hapus gambar ' + item.name + '?')) return;
-      fetch('/api/image/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folder: imageFolder.value, name: item.name }) })
-        .then(function (response) { return response.json(); })
-        .then(function (data) {
-          if (!data.ok) throw new Error(data.error);
-          loadImages();
-        })
-        .catch(function (error) { setImageMessage(error.message || 'Gagal menghapus gambar.', true); });
-    });
-    actions.append(copy, del);
-    meta.append(placement, actions);
-    card.appendChild(meta);
-    return card;
-  }
-
-  function loadImages() {
-    var folder = imageFolder.value;
-    imageGuide.textContent = folderGuide[folder] || '';
-    fetch('/api/images?folder=' + encodeURIComponent(folder))
-      .then(function (response) { return response.json(); })
-      .then(function (data) {
-        imageGrid.replaceChildren();
-        if (!data.files || !data.files.length) {
-          imageEmpty.style.display = 'block';
-          setImageMessage('Belum ada gambar di folder ini. Klik "+ Pilih Gambar" untuk mengunggah.');
-          return;
-        }
-        imageEmpty.style.display = 'none';
-        data.files.forEach(function (item) { imageGrid.appendChild(imageCard(item)); });
-      })
-      .catch(function () { setImageMessage('Gagal memuat daftar gambar.', true); });
-  }
-
-  imageFolder.addEventListener('change', loadImages);
-
-  // ---------- Crop box overlay ----------
-  function createCropBox() {
-    if (cropBox) cropBox.remove();
-    cropBox = document.createElement('div');
-    cropBox.className = 'crop-box';
-    cropFrame.appendChild(cropBox);
-    cropBox.appendChild(document.createElement('div')); // handle SE
+  function openUploadModal(folder, callback) {
+    uploadFolder = folder || 'galeri';
+    uploadCallback = callback || null;
+    imageInput.value = '';
+    imageInput.click();
   }
 
   function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
@@ -321,12 +192,15 @@
   function getImageRect() {
     var rect = cropImage.getBoundingClientRect();
     var frameRect = cropFrame.getBoundingClientRect();
-    return {
-      left: rect.left - frameRect.left,
-      top: rect.top - frameRect.top,
-      width: rect.width,
-      height: rect.height
-    };
+    return { left: rect.left - frameRect.left, top: rect.top - frameRect.top, width: rect.width, height: rect.height };
+  }
+
+  function createCropBox() {
+    if (cropBox) cropBox.remove();
+    cropBox = document.createElement('div');
+    cropBox.className = 'crop-box';
+    cropFrame.appendChild(cropBox);
+    cropBox.appendChild(document.createElement('div'));
   }
 
   function fitBoxToRatio(ratio) {
@@ -336,111 +210,62 @@
     if (h > imgRect.height * 0.8) { h = imgRect.height * 0.8; w = ratio > 0 ? h * ratio : w; }
     var x = imgRect.left + (imgRect.width - w) / 2;
     var y = imgRect.top + (imgRect.height - h) / 2;
-    cropBox.style.left = x + 'px';
-    cropBox.style.top = y + 'px';
-    cropBox.style.width = w + 'px';
-    cropBox.style.height = h + 'px';
-  }
-
-  function applyCropBox() {
-    var ratio = parseFloat(cropRatioSelect.value) || 0;
-    var imgRect = getImageRect();
-    if (!cropBox) return;
-    var b = cropBox.getBoundingClientRect();
-    var frameRect = cropFrame.getBoundingClientRect();
-    var left = clamp(b.left - frameRect.left, imgRect.left, imgRect.left + imgRect.width - 20);
-    var top = clamp(b.top - frameRect.top, imgRect.top, imgRect.top + imgRect.height - 20);
-    var width = clamp(b.width, 20, imgRect.right - (frameRect.left + left));
-    var height = clamp(b.height, 20, imgRect.bottom - (frameRect.top + top));
-    if (ratio > 0) {
-      var maxW = imgRect.width;
-      var maxH = imgRect.height;
-      var w2 = width, h2 = w2 / ratio;
-      if (h2 > maxH) { h2 = maxH; w2 = h2 * ratio; }
-      if (w2 > maxW) { w2 = maxW; h2 = w2 / ratio; }
-      width = w2; height = h2;
-      left = clamp(left, imgRect.left, imgRect.right - width);
-      top = clamp(top, imgRect.top, imgRect.bottom - height);
-    }
-    cropBox.style.left = left + 'px';
-    cropBox.style.top = top + 'px';
-    cropBox.style.width = width + 'px';
-    cropBox.style.height = height + 'px';
+    cropBox.style.left = x + 'px'; cropBox.style.top = y + 'px';
+    cropBox.style.width = w + 'px'; cropBox.style.height = h + 'px';
   }
 
   function setupCropDrag() {
     if (!cropBox) return;
     var startX = 0, startY = 0, startLeft = 0, startTop = 0, startW = 0, startH = 0, mode = null;
     var imgRect, ratio;
-
     function onDown(event) {
       var t = event.target;
       ratio = parseFloat(cropRatioSelect.value) || 0;
       imgRect = getImageRect();
       if (t === cropBox.lastElementChild) {
-        mode = 'resize';
-        startX = event.clientX; startY = event.clientY;
+        mode = 'resize'; startX = event.clientX; startY = event.clientY;
         startW = cropBox.offsetWidth; startH = cropBox.offsetHeight;
         startLeft = cropBox.offsetLeft; startTop = cropBox.offsetTop;
       } else if (t === cropBox || cropBox.contains(t)) {
-        mode = 'move';
-        startX = event.clientX; startY = event.clientY;
+        mode = 'move'; startX = event.clientX; startY = event.clientY;
         startLeft = cropBox.offsetLeft; startTop = cropBox.offsetTop;
         startW = cropBox.offsetWidth; startH = cropBox.offsetHeight;
       }
-      if (mode) {
-        event.preventDefault();
-        document.addEventListener('mousemove', onMove);
-        document.addEventListener('mouseup', onUp);
-      }
+      if (mode) { event.preventDefault(); document.addEventListener('mousemove', onMove); document.addEventListener('mouseup', onUp); }
     }
-
     function onMove(event) {
       if (!mode) return;
-      var dx = event.clientX - startX;
-      var dy = event.clientY - startY;
+      var dx = event.clientX - startX; var dy = event.clientY - startY;
       var boxLeft = clamp(startLeft + dx, imgRect.left, imgRect.right - 20);
       var boxTop = clamp(startTop + dy, imgRect.top, imgRect.bottom - 20);
       var boxW = clamp(startW + dx, 20, imgRect.width);
       var boxH = clamp(startH + dy, 20, imgRect.height);
       if (mode === 'move') {
-        if (ratio > 0) {
-          boxLeft = clamp(boxLeft, imgRect.left, imgRect.right - startW);
-          boxTop = clamp(boxTop, imgRect.top, imgRect.bottom - startH);
-        }
-        cropBox.style.left = boxLeft + 'px';
-        cropBox.style.top = boxTop + 'px';
+        if (ratio > 0) { boxLeft = clamp(boxLeft, imgRect.left, imgRect.right - startW); boxTop = clamp(boxTop, imgRect.top, imgRect.bottom - startH); }
+        cropBox.style.left = boxLeft + 'px'; cropBox.style.top = boxTop + 'px';
       } else {
-        var w2 = boxW;
-        var h2 = boxH;
+        var w2 = boxW; var h2 = boxH;
         if (ratio > 0) {
           if (Math.abs(dx) >= Math.abs(dy)) { w2 = boxW; h2 = w2 / ratio; } else { h2 = boxH; w2 = h2 * ratio; }
           if (w2 > imgRect.right - startLeft) { w2 = imgRect.right - startLeft; h2 = w2 / ratio; }
           if (h2 > imgRect.bottom - startTop) { h2 = imgRect.bottom - startTop; w2 = h2 * ratio; }
         }
-        cropBox.style.left = startLeft + 'px';
-        cropBox.style.top = startTop + 'px';
-        cropBox.style.width = w2 + 'px';
-        cropBox.style.height = h2 + 'px';
+        cropBox.style.left = startLeft + 'px'; cropBox.style.top = startTop + 'px';
+        cropBox.style.width = w2 + 'px'; cropBox.style.height = h2 + 'px';
       }
       updatePreview();
     }
-
-    function onUp() {
-      mode = null;
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-    }
-
+    function onUp() { mode = null; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
     cropFrame.addEventListener('mousedown', onDown);
   }
+
+  var cropState = null;
 
   function updatePreview() {
     if (!cropBox || !cropImage.src) return;
     var ratio = parseFloat(cropRatioSelect.value) || 0;
     var outWidth = Math.max(16, Math.min(parseInt(cropWidthInput.value, 10) || 800, 4096));
     var b = cropBox.getBoundingClientRect();
-    var imgRect = getImageRect();
     var imgRectAbs = cropImage.getBoundingClientRect();
     var sx = (b.left - imgRectAbs.left) / imgRectAbs.width * cropImage.naturalWidth;
     var sy = (b.top - imgRectAbs.top) / imgRectAbs.height * cropImage.naturalHeight;
@@ -448,134 +273,143 @@
     var sh = b.height / imgRectAbs.height * cropImage.naturalHeight;
     var outHeight = ratio > 0 ? Math.round(outWidth / ratio) : Math.round(outWidth * sh / sw);
     var preview = cropPreview.getContext('2d');
-    var pW = Math.max(16, Math.min(outWidth, 1280));
-    var pH = Math.max(16, Math.min(outHeight, 1280));
+    var pW = Math.max(16, Math.min(outWidth, 1280)); var pH = Math.max(16, Math.min(outHeight, 1280));
     cropPreview.width = pW; cropPreview.height = pH;
     preview.imageSmoothingQuality = 'high';
     preview.drawImage(cropImage, sx, sy, sw, sh, 0, 0, pW, pH);
-    // Simpan koordinat crop untuk dipakai saat apply
     cropState = { sx: sx, sy: sy, sw: sw, sh: sh };
   }
 
-  var cropState = null;
-
   function setupCrop(img) {
     cropImage.src = img.src;
-    cropImage.dataset.nw = img.naturalWidth;
-    cropImage.dataset.nh = img.naturalHeight;
-    var maxW = 900;
-    var scale = Math.min(1, maxW / img.naturalWidth);
-    cropImage.style.width = Math.round(img.naturalWidth * scale) + 'px';
-    cropImage.style.height = 'auto';
-    createCropBox();
-    fitBoxToRatio(parseFloat(cropRatioSelect.value) || 0);
-    setupCropDrag();
-    updatePreview();
+    cropImage.dataset.nw = img.naturalWidth; cropImage.dataset.nh = img.naturalHeight;
+    var scale = Math.min(1, 900 / img.naturalWidth);
+    cropImage.style.width = Math.round(img.naturalWidth * scale) + 'px'; cropImage.style.height = 'auto';
+    createCropBox(); fitBoxToRatio(parseFloat(cropRatioSelect.value) || 0); setupCropDrag(); updatePreview();
   }
 
   function resetCropState() {
     if (cropBox) { cropBox.remove(); cropBox = null; }
     cropState = null;
-    cropImage.removeAttribute('src');
-    cropImage.removeAttribute('data-nw');
-    cropImage.removeAttribute('data-nh');
+    cropImage.removeAttribute('src'); cropImage.removeAttribute('data-nw'); cropImage.removeAttribute('data-nh');
     cropPreview.getContext('2d').clearRect(0, 0, cropPreview.width, cropPreview.height);
   }
 
   imageInput.addEventListener('change', function () {
     var file = imageInput.files && imageInput.files[0];
     if (!file) return;
-    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
-      setImageMessage('Format tidak didukung. Gunakan PNG, JPG, atau WEBP.', true);
-      imageInput.value = '';
-      return;
-    }
-    if (file.size > 25 * 1024 * 1024) {
-      setImageMessage('Ukuran gambar maksimal 25 MB.', true);
-      imageInput.value = '';
-      return;
-    }
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) { setMessage('Format tidak didukung. Gunakan PNG, JPG, atau WEBP.', true); imageInput.value = ''; return; }
+    if (file.size > 25 * 1024 * 1024) { setMessage('Ukuran gambar maksimal 25 MB.', true); imageInput.value = ''; return; }
     selectedFile = file;
     var reader = new FileReader();
     reader.onload = function () {
       var img = new Image();
-      img.onload = function () {
-        setupCrop(img);
-        cropDialog.showModal();
-      };
-      img.onerror = function () { setImageMessage('Gambar tidak dapat dibaca.', true); };
+      img.onload = function () { setupCrop(img); cropDialog.showModal(); };
+      img.onerror = function () { setMessage('Gambar tidak dapat dibaca.', true); };
       img.src = reader.result;
     };
     reader.readAsDataURL(file);
   });
 
   cropWidthInput.addEventListener('input', updatePreview);
-  cropRatioSelect.addEventListener('change', function () {
-    fitBoxToRatio(parseFloat(cropRatioSelect.value) || 0);
-    setupCropDrag();
-    updatePreview();
-  });
-  cropQuality.addEventListener('input', function () {
-    cropQualityLabel.textContent = Math.round(parseFloat(cropQuality.value) * 100) + '%';
-  });
+  cropRatioSelect.addEventListener('change', function () { fitBoxToRatio(parseFloat(cropRatioSelect.value) || 0); setupCropDrag(); updatePreview(); });
+  cropQuality.addEventListener('input', function () { cropQualityLabel.textContent = Math.round(parseFloat(cropQuality.value) * 100) + '%'; });
 
   cropApply.addEventListener('click', function () {
-    if (!cropState || !cropState.sw) {
-      setImageMessage('Silakan atur area potong terlebih dahulu.', true);
-      return;
-    }
+    if (!cropState || !cropState.sw) { setMessage('Silakan atur area potong terlebih dahulu.', true); return; }
     var ratio = parseFloat(cropRatioSelect.value) || 0;
     var outWidth = Math.max(16, Math.min(parseInt(cropWidthInput.value, 10) || 800, 4096));
     var outHeight = ratio > 0 ? Math.round(outWidth / ratio) : Math.round(outWidth * cropState.sh / cropState.sw);
-    var canvas = document.createElement('canvas');
-    canvas.width = outWidth;
-    canvas.height = outHeight;
-    var ctx = canvas.getContext('2d');
-    ctx.imageSmoothingQuality = 'high';
+    var canvas = document.createElement('canvas'); canvas.width = outWidth; canvas.height = outHeight;
+    var ctx = canvas.getContext('2d'); ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(cropImage, cropState.sx, cropState.sy, cropState.sw, cropState.sh, 0, 0, outWidth, outHeight);
     var quality = parseFloat(cropQuality.value) || 0.82;
-    var fileName = (selectedFile && selectedFile.name) || 'gambar';
     var dataUrl = canvas.toDataURL('image/webp', quality);
-    cropApply.disabled = true;
-    cropApply.textContent = 'Mengunggah…';
-    fetch('/api/upload', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ folder: imageFolder.value, name: fileName, dataUrl: dataUrl })
-    })
-      .then(function (response) { return response.json(); })
+    var fileName = (selectedFile && selectedFile.name) || 'gambar';
+    cropApply.disabled = true; cropApply.textContent = 'Mengunggah…';
+    fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folder: uploadFolder, name: fileName, dataUrl: dataUrl }) })
+      .then(function (r) { return r.json(); })
       .then(function (data) {
         if (!data.ok) throw new Error(data.error);
-        cropDialog.close();
-        resetCropState();
-        imageInput.value = '';
-        selectedFile = null;
-        loadImages();
-        setImageMessage('Gambar berhasil diunggah sebagai WebP.');
+        cropDialog.close(); resetCropState(); imageInput.value = ''; selectedFile = null;
+        setMessage('Gambar berhasil diunggah.');
+        if (uploadCallback) { var cb = uploadCallback; uploadCallback = null; cb(data.url); }
       })
-      .catch(function (error) {
-        setImageMessage(error.message || 'Gagal mengunggah gambar.', true);
-      })
-      .finally(function () {
-        cropApply.disabled = false;
-        cropApply.textContent = 'Simpan WebP';
+      .catch(function (err) { setMessage(err.message || 'Gagal mengunggah gambar.', true); })
+      .finally(function () { cropApply.disabled = false; cropApply.textContent = 'Simpan WebP'; });
+  });
+
+  cropClose.addEventListener('click', function () { cropDialog.close(); resetCropState(); imageInput.value = ''; selectedFile = null; uploadCallback = null; });
+  cropDialog.addEventListener('click', function (event) { if (event.target === cropDialog) { cropDialog.close(); resetCropState(); imageInput.value = ''; selectedFile = null; uploadCallback = null; } });
+
+  // ==========================================
+  // 8. Hero & Galeri — slot management
+  // ==========================================
+  var gallerySlotDefs = [
+    { key: 'learning', label: 'Kegiatan Belajar Mengajar' },
+    { key: 'ceremony', label: 'Upacara Bendera' },
+    { key: 'scouts', label: 'Ekstrakurikuler Pramuka' },
+    { key: 'achievements', label: 'Lomba & Prestasi' },
+    { key: 'environment', label: 'Lingkungan Sekolah' },
+    { key: 'specialDay', label: 'Hari Istimewa' }
+  ];
+
+  function saveImagePath(pathKey, url, onDone) {
+    var parts = pathKey.split('.');
+    var target = current.site.content.images;
+    parts.slice(0, -1).forEach(function (p) { target = target[p] = target[p] || {}; });
+    target[parts[parts.length - 1]] = url;
+    fetch('/api/content', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(current.site) })
+      .then(function (r) { return r.json(); })
+      .then(function (data) { if (data.ok) { if (onDone) onDone(); } else { setMessage(data.error || 'Gagal menyimpan foto.', true); } })
+      .catch(function () { setMessage('Gagal menyimpan foto.', true); });
+  }
+
+  function buildSlotCard(key, label, imgUrl, folder, pathKey) {
+    var card = document.createElement('div');
+    card.className = 'gallery-slot-card' + (imgUrl ? ' has-img' : '');
+    var preview = document.createElement('div');
+    preview.className = 'gallery-slot-preview';
+    if (imgUrl) preview.style.backgroundImage = 'url("' + String(imgUrl).replace(/"/g, '%22') + '")';
+    var meta = document.createElement('div'); meta.className = 'gallery-slot-meta';
+    var lbl = document.createElement('span'); lbl.className = 'gallery-slot-label'; lbl.textContent = label;
+    var actions = document.createElement('div'); actions.className = 'gallery-slot-actions';
+    var upBtn = document.createElement('button'); upBtn.type = 'button'; upBtn.className = 'admin-add';
+    upBtn.textContent = imgUrl ? 'Ganti foto' : '+ Upload foto';
+    upBtn.addEventListener('click', function () {
+      openUploadModal(folder, function (url) {
+        saveImagePath(pathKey, url, function () { if (pathKey === 'hero') renderHeroSlot(); else renderGallerySlots(); });
       });
-  });
-
-  cropClose.addEventListener('click', function () {
-    cropDialog.close();
-    resetCropState();
-    imageInput.value = '';
-    selectedFile = null;
-  });
-  cropDialog.addEventListener('click', function (event) {
-    if (event.target === cropDialog) {
-      cropDialog.close();
-      resetCropState();
-      imageInput.value = '';
-      selectedFile = null;
+    });
+    actions.appendChild(upBtn);
+    if (imgUrl) {
+      var delBtn = document.createElement('button'); delBtn.type = 'button'; delBtn.className = 'admin-remove'; delBtn.textContent = 'Hapus foto';
+      delBtn.addEventListener('click', function () {
+        if (!confirm('Hapus foto dari slot "' + label + '"?')) return;
+        saveImagePath(pathKey, '', function () { if (pathKey === 'hero') renderHeroSlot(); else renderGallerySlots(); });
+      });
+      actions.appendChild(delBtn);
     }
-  });
+    meta.append(lbl, actions);
+    card.append(preview, meta);
+    return card;
+  }
 
-  loadImages();
+  function renderHeroSlot() {
+    var container = document.getElementById('heroSlotContainer');
+    if (!container || !current) return;
+    container.replaceChildren();
+    var heroUrl = (current.site.content.images && current.site.content.images.hero) || '';
+    container.appendChild(buildSlotCard('hero', 'Foto Hero Beranda (rasio 16:9, min. 1600×900 px)', heroUrl, 'profil', 'hero'));
+  }
+
+  function renderGallerySlots() {
+    var grid = document.getElementById('gallerySlotGrid');
+    if (!grid || !current) return;
+    grid.replaceChildren();
+    var gallery = (current.site.content.images && current.site.content.images.gallery) || {};
+    gallerySlotDefs.forEach(function (slot) {
+      grid.appendChild(buildSlotCard(slot.key, slot.label, gallery[slot.key] || '', 'galeri', 'gallery.' + slot.key));
+    });
+  }
 })();
