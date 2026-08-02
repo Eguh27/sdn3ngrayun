@@ -146,6 +146,17 @@
         element.replaceChildren();
         items.forEach(function (item, index) { element.appendChild(extracurricularCard(item, index, detail)); });
       });
+      document.querySelectorAll('[data-missions]').forEach(function (element) {
+        var missions = content.school && content.school.missions;
+        if (!Array.isArray(missions) || !missions.length) return;
+        element.replaceChildren();
+        missions.forEach(function (text, index) {
+          var li = document.createElement('li');
+          var num = document.createElement('span'); num.className = 'misi-num'; num.textContent = String(index + 1).padStart(2, '0');
+          var p = document.createElement('p'); p.textContent = text;
+          li.append(num, p); element.appendChild(li);
+        });
+      });
       document.querySelectorAll('[data-news]').forEach(function (element) { var items = content.news && content.news.items; if (Array.isArray(items) && items.length) { element.replaceChildren(); items.forEach(function (item, index) { element.appendChild(newsCard(item, index)); }); } });
       document.querySelectorAll('[data-videos]').forEach(function (element) { var items = content.videos && content.videos.items; if (Array.isArray(items) && items.length) { element.replaceChildren(); items.forEach(function (item) { element.appendChild(videoCard(item)); }); } });
       document.querySelectorAll('[data-channel-link]').forEach(function (element) { if (content.videos && content.videos.channelUrl) { element.href = content.videos.channelUrl; element.hidden = false; } });

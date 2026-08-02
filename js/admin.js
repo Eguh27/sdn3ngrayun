@@ -8,6 +8,10 @@
   var addNews = document.getElementById('addNews');
   var videoFields = document.getElementById('videoFields');
   var addVideo = document.getElementById('addVideo');
+  var missionFields = document.getElementById('missionFields');
+  var addMission = document.getElementById('addMission');
+  var ekskulFields = document.getElementById('ekskulFields');
+  var addEkskul = document.getElementById('addEkskul');
   var logoutButton = document.getElementById('logoutButton');
   var current;
 
@@ -26,6 +30,8 @@
     form.elements.albumTitle.value = current.site.content.albumTitle || '';
     form.elements.achievementTitle.value = current.prestasi.title || '';
     form.elements.channelUrl.value = current.videos.channelUrl || '';
+    renderMissions(current.site.school.missions || []);
+    renderEkskul(current.extracurricular.items || []);
     renderAchievements(current.prestasi.achievements || []);
     renderNews(current.news.items || []);
     renderVideos(current.videos.items || []);
@@ -112,6 +118,37 @@
   }
   function renderVideos(items) { videoFields.replaceChildren(); items.forEach(addVideoCard); }
 
+  function addMissionCard(text) {
+    var card = document.createElement('fieldset'); card.className = 'achievement-editor'; card.dataset.label = 'Misi';
+    var top = document.createElement('div'); top.className = 'achievement-editor-top';
+    var remove = document.createElement('button'); remove.type = 'button'; remove.className = 'admin-remove'; remove.textContent = 'Hapus'; remove.addEventListener('click', function () { card.remove(); }); top.appendChild(remove);
+    var fields = document.createElement('div'); fields.className = 'admin-fields';
+    var mf = field('Butir misi', 'missionText', text, true); mf.classList.add('full'); mf.querySelector('textarea').rows = 3;
+    fields.appendChild(mf); card.append(top, fields); missionFields.appendChild(card);
+  }
+  function renderMissions(items) { missionFields.replaceChildren(); items.forEach(function (t) { addMissionCard(t); }); }
+
+  function addEkskulCard(item) {
+    item = item || {};
+    var card = document.createElement('fieldset'); card.className = 'achievement-editor'; card.dataset.label = 'Ekskul';
+    var top = document.createElement('div'); top.className = 'achievement-editor-top';
+    var remove = document.createElement('button'); remove.type = 'button'; remove.className = 'admin-remove'; remove.textContent = 'Hapus'; remove.addEventListener('click', function () { card.remove(); }); top.appendChild(remove);
+    var fields = document.createElement('div'); fields.className = 'admin-fields';
+    var schedule = (item.details && item.details[0] && item.details[0].value) || '';
+    fields.append(
+      field('Ikon (emoji)', 'icon', item.icon),
+      field('Nama ekskul', 'title', item.title),
+      field('Jadwal', 'schedule', schedule),
+      field('Ringkasan singkat (beranda)', 'summary', item.summary),
+      field('Deskripsi lengkap (halaman ekskul)', 'description', item.description || item.summary, true)
+    );
+    fields.children[1].classList.add('full');
+    fields.children[3].classList.add('full');
+    fields.lastChild.classList.add('full');
+    card.append(top, fields); ekskulFields.appendChild(card);
+  }
+  function renderEkskul(items) { ekskulFields.replaceChildren(); items.forEach(addEkskulCard); }
+
   Promise.all(['/api/content', '/api/prestasi', '/api/ekstrakurikuler', '/api/news', '/api/videos'].map(function (url) {
     return fetch(url).then(function (response) {
       if (!response.ok) throw new Error();
@@ -123,13 +160,31 @@
     event.preventDefault();
     if (!current) return setMessage('Data belum berhasil dimuat.', true);
     current.site.school = Object.assign({}, current.site.school);
+    var skipKeys = { missions: true };
     Object.keys(current.site.school).forEach(function (key) {
-      var field = form.elements[key];
-      if (field) current.site.school[key] = field.value.trim();
+      if (skipKeys[key]) return;
+      var f = form.elements[key];
+      if (f) current.site.school[key] = f.value.trim();
     });
+    current.site.school.missions = Array.prototype.map.call(
+      missionFields.querySelectorAll('.achievement-editor'),
+      function (card) { return card.elements.missionText.value.trim(); }
+    ).filter(Boolean);
     current.site.content = current.site.content || {};
     current.site.content.albumTitle = form.elements.albumTitle.value.trim();
     current.extracurricular.title = form.elements.extracurricularTitle.value.trim();
+    current.extracurricular.items = Array.prototype.map.call(
+      ekskulFields.querySelectorAll('.achievement-editor'),
+      function (card) {
+        return {
+          icon: card.elements.icon.value.trim(),
+          title: card.elements.title.value.trim(),
+          summary: card.elements.summary.value.trim(),
+          description: card.elements.description.value.trim(),
+          details: [{ label: 'Jadwal', value: card.elements.schedule.value.trim() }]
+        };
+      }
+    ).filter(function (item) { return item.title; });
     current.prestasi.title = form.elements.achievementTitle.value.trim();
     current.news.items = Array.prototype.map.call(newsFields.querySelectorAll('.achievement-editor'), function (card) { return { date: card.elements.date.value.trim(), title: card.elements.title.value.trim(), subtitle: card.elements.subtitle.value.trim(), excerpt: card.elements.excerpt.value.trim(), body: card.elements.articleBody.value.trim(), image: card.elements.image.value.trim(), imageSource: card.elements.imageSource.value.trim(), author: { name: card.elements.authorName.value.trim(), role: card.elements.authorRole.value.trim() }, url: card.elements.url.value.trim() }; }).filter(function (item) { return item.title; });
     current.videos.channelUrl = form.elements.channelUrl.value.trim();
@@ -157,6 +212,8 @@
   addAchievement.addEventListener('click', function () { addAchievementCard({}); });
   addNews.addEventListener('click', function () { addNewsCard({}); });
   addVideo.addEventListener('click', function () { addVideoCard({}); });
+  addMission.addEventListener('click', function () { addMissionCard(''); });
+  addEkskul.addEventListener('click', function () { addEkskulCard({}); });
   logoutButton.addEventListener('click', function () {
     fetch('/api/admin/logout', { method: 'POST' }).finally(function () { window.location.assign('/admin'); });
   });
