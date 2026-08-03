@@ -12,6 +12,9 @@
   var addMission = document.getElementById('addMission');
   var ekskulFields = document.getElementById('ekskulFields');
   var addEkskul = document.getElementById('addEkskul');
+  var staffFields = document.getElementById('staffFields');
+  var addStaff = document.getElementById('addStaff');
+  var principalPhotoInput = document.getElementById('principalPhotoUpload');
   var logoutButton = document.getElementById('logoutButton');
   var current;
 
@@ -30,7 +33,9 @@
     form.elements.albumTitle.value = current.site.content.albumTitle || '';
     form.elements.achievementTitle.value = current.prestasi.title || '';
     form.elements.channelUrl.value = current.videos.channelUrl || '';
+    if (form.elements.principalPhoto) form.elements.principalPhoto.value = current.site.school.principalPhoto || '';
     renderMissions(current.site.school.missions || []);
+    renderStaff(current.site.school.staff || []);
     renderEkskul(current.extracurricular.items || []);
     renderAchievements(current.prestasi.achievements || []);
     renderNews(current.news.items || []);
@@ -88,22 +93,29 @@
     var bodyField = field('Isi artikel lengkap', 'articleBody', item.body || item.articleBody);
     bodyField.classList.add('full');
     bodyField.querySelector('textarea,input').rows = 10;
-    var imageField = field('URL gambar artikel', 'image', item.image);
-    imageField.classList.add('full');
+    var imageLabel = document.createElement('label');
+    imageLabel.className = 'full';
+    imageLabel.textContent = 'URL gambar artikel';
+    var imageWrap = document.createElement('div');
+    imageWrap.className = 'img-field-wrap';
+    var imageInputEl = document.createElement('input');
+    imageInputEl.name = 'image';
+    imageInputEl.value = item.image || '';
     var imgUpBtn = document.createElement('button');
     imgUpBtn.type = 'button'; imgUpBtn.className = 'admin-add img-upload-btn-inline';
     imgUpBtn.textContent = '⬆ Upload foto artikel';
     imgUpBtn.addEventListener('click', function () {
-      openUploadModal('galeri', function (url) { imageField.querySelector('input').value = url; });
+      openUploadModal('galeri', function (url) { imageInputEl.value = url; });
     });
-    imageField.appendChild(imgUpBtn);
+    imageWrap.append(imageInputEl, imgUpBtn);
+    imageLabel.appendChild(imageWrap);
     var imageSourceField = field('Sumber / kredit foto', 'imageSource', item.imageSource);
     imageSourceField.classList.add('full');
     var authorNameField = field('Nama penulis', 'authorName', author.name);
     var authorRoleField = field('Jabatan / peran penulis', 'authorRole', author.role);
     var urlField = field('Tautan sumber eksternal (opsional)', 'url', item.url);
     urlField.classList.add('full');
-    fields.append(dateField, titleField, subtitleField, excerptField, bodyField, imageField, imageSourceField, authorNameField, authorRoleField, urlField);
+    fields.append(dateField, titleField, subtitleField, excerptField, bodyField, imageLabel, imageSourceField, authorNameField, authorRoleField, urlField);
     card.append(top, fields); newsFields.appendChild(card);
   }
   function renderNews(items) { newsFields.replaceChildren(); items.forEach(addNewsCard); }
@@ -127,6 +139,37 @@
     fields.appendChild(mf); card.append(top, fields); missionFields.appendChild(card);
   }
   function renderMissions(items) { missionFields.replaceChildren(); items.forEach(function (t) { addMissionCard(t); }); }
+
+  function addStaffCard(item) {
+    item = item || {};
+    var card = document.createElement('fieldset'); card.className = 'achievement-editor'; card.dataset.label = 'Guru/Staf';
+    var top = document.createElement('div'); top.className = 'achievement-editor-top';
+    var remove = document.createElement('button'); remove.type = 'button'; remove.className = 'admin-remove'; remove.textContent = 'Hapus'; remove.addEventListener('click', function () { card.remove(); }); top.appendChild(remove);
+    var fields = document.createElement('div'); fields.className = 'admin-fields';
+    var nameField = field('Nama lengkap', 'staffName', item.name);
+    nameField.classList.add('full');
+    var roleField = field('Jabatan / peran', 'staffRole', item.role);
+    roleField.classList.add('full');
+    var photoLabel = document.createElement('label');
+    photoLabel.className = 'full';
+    photoLabel.textContent = 'URL foto';
+    var photoWrap = document.createElement('div');
+    photoWrap.className = 'img-field-wrap';
+    var photoInputEl = document.createElement('input');
+    photoInputEl.name = 'staffPhoto';
+    photoInputEl.value = item.photo || '';
+    var upBtn = document.createElement('button');
+    upBtn.type = 'button'; upBtn.className = 'admin-add img-upload-btn-inline';
+    upBtn.textContent = '⬆ Upload foto';
+    upBtn.addEventListener('click', function () {
+      openUploadModal('profil', function (url) { photoInputEl.value = url; });
+    });
+    photoWrap.append(photoInputEl, upBtn);
+    photoLabel.appendChild(photoWrap);
+    fields.append(nameField, roleField, photoLabel);
+    card.append(top, fields); staffFields.appendChild(card);
+  }
+  function renderStaff(items) { staffFields.replaceChildren(); items.forEach(addStaffCard); }
 
   function addEkskulCard(item) {
     item = item || {};
@@ -170,8 +213,32 @@
       missionFields.querySelectorAll('.achievement-editor'),
       function (card) { return card.elements.missionText.value.trim(); }
     ).filter(Boolean);
+    current.site.school.principalPhoto = form.elements.principalPhoto ? form.elements.principalPhoto.value.trim() : '';
+    current.site.school.staff = Array.prototype.map.call(staffFields.querySelectorAll('.achievement-editor'), function (card) {
+      return {
+        name: card.elements.staffName.value.trim(),
+        role: card.elements.staffRole.value.trim(),
+        photo: card.elements.staffPhoto.value.trim()
+      };
+    }).filter(function (item) { return item.name; });
     current.site.content = current.site.content || {};
     current.site.content.albumTitle = form.elements.albumTitle.value.trim();
+    current.site.content.galleryInfo = current.site.content.galleryInfo || {};
+    var galleryInfo = {};
+    document.querySelectorAll('.gallery-slot-card').forEach(function (card) {
+      var key = card.querySelector('.gallery-slot-meta .gallery-slot-label');
+      var titleInput = card.querySelector('input[name="galleryTitle"]');
+      var detailInput = card.querySelector('textarea[name="galleryDetail"]');
+      var matched = null;
+      gallerySlotDefs.forEach(function (slot) {
+        if (!key) return;
+        if (key.textContent === slot.label) matched = slot.key;
+      });
+      if (matched && titleInput && detailInput) {
+        galleryInfo[matched] = { title: titleInput.value.trim(), detail: detailInput.value.trim() };
+      }
+    });
+    current.site.content.galleryInfo = galleryInfo;
     current.extracurricular.title = form.elements.extracurricularTitle.value.trim();
     current.extracurricular.items = Array.prototype.map.call(
       ekskulFields.querySelectorAll('.achievement-editor'),
@@ -214,6 +281,10 @@
   addVideo.addEventListener('click', function () { addVideoCard({}); });
   addMission.addEventListener('click', function () { addMissionCard(''); });
   addEkskul.addEventListener('click', function () { addEkskulCard({}); });
+  if (addStaff) addStaff.addEventListener('click', function () { addStaffCard({}); });
+  if (principalPhotoInput) principalPhotoInput.addEventListener('click', function () {
+    openUploadModal('profil', function (url) { if (form.elements.principalPhoto) form.elements.principalPhoto.value = url; });
+  });
   logoutButton.addEventListener('click', function () {
     fetch('/api/admin/logout', { method: 'POST' }).finally(function () { window.location.assign('/admin'); });
   });
@@ -422,7 +493,7 @@
       .catch(function () { setMessage('Gagal menyimpan foto.', true); });
   }
 
-  function buildSlotCard(key, label, imgUrl, folder, pathKey) {
+  function buildSlotCard(key, label, imgUrl, folder, pathKey, info) {
     var card = document.createElement('div');
     card.className = 'gallery-slot-card' + (imgUrl ? ' has-img' : '');
     var preview = document.createElement('div');
@@ -449,6 +520,25 @@
     }
     meta.append(lbl, actions);
     card.append(preview, meta);
+    if (pathKey !== 'hero') {
+      var infoFields = document.createElement('div');
+      infoFields.className = 'gallery-slot-info';
+      var titleInput = document.createElement('input');
+      titleInput.type = 'text';
+      titleInput.name = 'galleryTitle';
+      titleInput.placeholder = 'Judul tampilan';
+      titleInput.value = (info && info.title) || '';
+      var detailInput = document.createElement('textarea');
+      detailInput.name = 'galleryDetail';
+      detailInput.placeholder = 'Keterangan tampilan';
+      detailInput.rows = 2;
+      detailInput.value = (info && info.detail) || '';
+      var infoLabel = document.createElement('div');
+      infoLabel.className = 'gallery-info-label';
+      infoLabel.textContent = 'Judul & keterangan (tampil di website)';
+      infoFields.append(infoLabel, titleInput, detailInput);
+      card.appendChild(infoFields);
+    }
     return card;
   }
 
@@ -465,8 +555,9 @@
     if (!grid || !current) return;
     grid.replaceChildren();
     var gallery = (current.site.content.images && current.site.content.images.gallery) || {};
+    var galleryInfo = (current.site.content && current.site.content.galleryInfo) || {};
     gallerySlotDefs.forEach(function (slot) {
-      grid.appendChild(buildSlotCard(slot.key, slot.label, gallery[slot.key] || '', 'galeri', 'gallery.' + slot.key));
+      grid.appendChild(buildSlotCard(slot.key, slot.label, gallery[slot.key] || '', 'galeri', 'gallery.' + slot.key, galleryInfo[slot.key]));
     });
   }
 })();

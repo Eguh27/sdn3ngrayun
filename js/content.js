@@ -112,6 +112,37 @@
     var copy = document.createElement('div'); var title = document.createElement('h3'); title.textContent = item.title || 'Video sekolah'; var description = document.createElement('p'); description.textContent = item.description || ''; copy.append(title, description); article.appendChild(copy);
     return article;
   }
+  function staffCard(item) {
+    var card = document.createElement('div');
+    card.className = 'staff-card';
+    var photo = document.createElement('div');
+    photo.className = 'staff-photo';
+    if (item.photo) {
+      photo.style.backgroundImage = 'url("' + String(item.photo).replace(/"/g, '%22') + '")';
+      photo.classList.add('has-photo');
+    } else {
+      photo.textContent = '—';
+    }
+    var name = document.createElement('b');
+    name.textContent = item.name || 'Nama Guru';
+    var role = document.createElement('span');
+    role.textContent = item.role || 'Tenaga Kependidikan';
+    card.append(photo, name, role);
+    return card;
+  }
+  function applyGalleryInfo(info, content) {
+    var gallery = content && content.content && content.content.galleryInfo;
+    if (!gallery) return;
+    document.querySelectorAll('[data-gallery-key]').forEach(function (element) {
+      var key = element.getAttribute('data-gallery-key');
+      var meta = gallery[key] || {};
+      if (meta.title) element.setAttribute('data-card-title', meta.title);
+      if (meta.detail) element.setAttribute('data-card-detail', meta.detail);
+      var span = element.querySelector('span');
+      if (span && meta.title) span.textContent = meta.title;
+      if (meta.title) element.setAttribute('aria-label', 'Buka detail ' + meta.title);
+    });
+  }
   Promise.all(['/api/content', '/api/prestasi', '/api/ekstrakurikuler', '/api/news', '/api/videos'].map(function (url) {
     return fetch(url).then(function (response) { return response.ok ? response.json() : Promise.reject(); });
   }))
@@ -127,6 +158,22 @@
         element.style.backgroundImage = 'url("' + String(imageUrl).replace(/"/g, '%22') + '")';
         element.classList.add('has-image');
       });
+      document.querySelectorAll('[data-principal-photo]').forEach(function (element) {
+        var photo = get(content, 'school.principalPhoto');
+        if (!photo) return;
+        element.style.backgroundImage = 'url("' + String(photo).replace(/"/g, '%22') + '")';
+        element.style.backgroundSize = 'cover';
+        element.style.backgroundPosition = 'center';
+        element.classList.add('has-photo');
+        element.textContent = '';
+      });
+      document.querySelectorAll('[data-staff]').forEach(function (element) {
+        var items = get(content, 'school.staff');
+        if (!Array.isArray(items) || !items.length) return;
+        element.replaceChildren();
+        items.forEach(function (item) { element.appendChild(staffCard(item)); });
+      });
+      applyGalleryInfo(null, content);
       document.querySelectorAll('[data-achievements]').forEach(function (element) {
         var items = get(content, element.getAttribute('data-achievements'));
         if (!Array.isArray(items) || !items.length) return;

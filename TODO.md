@@ -1,26 +1,35 @@
-# TODO — Terapkan Data dari Form Input Wawancara + Kelola Gambar
+# TODO — Implementasi Permintaan Pengguna
 
-## Tugas utama — data dari Form Wawancara
-- [x] Baca dan pahami isi Form Input Wawancara SDN 3 Ngrayun.docx
-- [x] Rencana disetujui pengguna
-- [x] Update data/ekstrakurikuler.json (4 ekskul aktif + jadwal)
-- [x] Update data/prestasi.json (4 prestasi asli)
-- [x] Update index.html: visi statis, nama kepsek, kartu ekskul, baris prestasi
-- [x] Update index.html: NPSN, Akreditasi, Tahun Berdiri pada info card
-- [x] Tambah section "Pembiasaan Harian" di index.html
-- [x] Tambah gaya CSS untuk section Pembiasaan Harian
-- [x] Update ekstrakurikuler.html & prestasi.html (fallback statis konsisten)
-- [x] Verifikasi hasil (JSON valid, API merespons, halaman render)
+## 1. Favicon
+- [x] Buat `favicon.svg` (logo S3 hijau-kapur, tema sekolah)
+- [x] Tambah `<link rel="icon">` di 8 halaman HTML (index, admin-login, admin, album, berita, ekstrakurikuler, prestasi, video)
 
-## Tugas baru — folder gambar + crop & auto-convert WebP di dashboard
-- [x] Buat folder `images/profil`, `images/galeri`, `images/ekskul`, `images/prestasi` (+ .gitkeep)
-- [x] Tambah endpoint server: `GET /api/images`, `POST /api/upload`, `POST /api/image/delete` (auth + sanitasi + path traversal guard)
-- [x] Tambah MIME image & perluas body-size limit di server.js
-- [x] Tambah section "Kelola Gambar" di admin.html (pilih folder, pilih file, daftar gambar)
-- [x] Tambah modal crop di admin.html (kotak geser/resize, rasio, lebar, kualitas)
-- [x] Implementasi crop + auto-convert WebP (canvas) di js/admin.js
-- [x] Tambah styling image manager & crop modal di css/style.css
-- [x] Update pre/CARA-MENJALANKAN.md (port 4147, struktur folder, panduan upload)
-- [x] Uji API: login/auth, list, upload, static serve, delete, path traversal (semua lolos)
-- [x] Uji sintaks server.js & js/admin.js (node --check lolos)
+## 2. Foto Guru & Staf via Admin
+- [x] Tambah `school.staff` (array `{name, role, photo}`) di `data/site.json`
+- [x] `index.html`: tambah foto kepala sekolah (`data-principal-photo`) + grid "Guru & Staf" (`[data-staff]`)
+- [x] `js/content.js`: render foto kepala sekolah + kartu staff dari data
+- [x] `admin.html`: section baru "Guru & Staf" (nama, jabatan, upload foto ke folder `profil`)
+- [x] `js/admin.js`: render + simpan staff, upload foto
+- [x] `css/style.css`: styling kartu staff & foto kepala sekolah
+
+## 3. Keterangan Galeri via Admin
+- [x] Tambah `content.galleryInfo` (judul & keterangan per 6 slot) di `data/site.json`
+- [x] `js/content.js`: injeksi judul/keterangan galeri dari `galleryInfo` ke index & album
+- [x] `js/admin.js`: kolom judul & keterangan di kartu slot galeri + simpan
+
+## 4. Audit & Perbaikan + Data Dummy
+- [x] Perbaiki bug upload foto berita (tombol keluar dari label → pakai `.img-field-wrap`)
+- [x] Perbaiki teks internal yang bocor ke publik (Perbarui di Admin, tips foto, instruksi album/prestasi)
+- [x] Konsistensi port & docs (replit.md, hapus catatan SESSION_SECRET yang tidak dipakai)
+- [x] Isi data dummy: `data/news.json` (3 berita lengkap) & `data/videos.json` (3 video YouTube contoh)
+- [x] Verifikasi akhir: `node --check` semua JS, jalankan server, cek semua API & halaman
+
+## Hasil Verifikasi Akhir
+- [x] Semua halaman (/, /admin, /album, /berita, /prestasi, /ekstrakurikuler, /video) → HTTP 200
+- [x] Semua API (/api/content, /api/news, /api/videos, /api/prestasi, /api/ekstrakurikuler) → HTTP 200
+- [x] /favicon.svg → HTTP 200 (image/svg+xml)
+- [x] Admin login → 401 untuk password salah, 200 untuk benar
+- [x] Dashboard → 200 dengan session, 302 redirect tanpa session
+- [x] `node --check` semua file JS lolos
+- [x] Validasi JSON semua file data lolos
 

@@ -83,6 +83,33 @@ header.scrolled { padding:10px 28px; color:var(--ink); background:rgba(255,253,2
 .img-field-wrap { display:grid; grid-template-columns:1fr auto; gap:8px; align-items:center; }
 .img-upload-btn-inline { font:600 .7rem 'DM Mono',monospace; padding:10px 14px; border:1px solid var(--ink); border-radius:10px; background:transparent; color:var(--ink); cursor:pointer; white-space:nowrap; }
 .img-upload-btn-inline:hover { background:var(--lime); }
+
+/* Gallery slot info fields (admin) */
+.gallery-slot-info { padding:0 14px 14px; display:flex; flex-direction:column; gap:8px; }
+.gallery-info-label { font-size:.64rem; color:var(--leaf); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.03em; }
+.gallery-slot-info input,
+.gallery-slot-info textarea { width:100%; padding:9px 10px; border:1px solid var(--line); border-radius:8px; background:var(--paper); color:var(--ink); font:400 .8rem 'DM Sans',sans-serif; }
+.gallery-slot-info textarea { resize:vertical; min-height:44px; }
+.gallery-slot-meta label { font-size:.64rem; }
+
+/* Staff section */
+.staff-section { margin-top:42px; padding-top:38px; border-top:2px solid var(--ink); }
+.staff-section h3 { font-size:1.8rem; margin-bottom:4px; }
+.staff-section > p { color:var(--muted); font-size:.92rem; margin-bottom:28px; }
+.staff-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:22px; }
+.staff-card { text-align:center; padding:22px 14px 18px; background:var(--white); border:1px solid var(--line); border-radius:18px; transition:.2s; }
+.staff-card:hover { transform:translateY(-4px); box-shadow:var(--shadow); }
+.staff-photo { width:72px; height:72px; margin:0 auto 14px; border-radius:50%; background:var(--ink); color:var(--lime); display:grid; place-items:center; font-family:'Fraunces',serif; font-size:1.3rem; background-size:cover; background-position:center; }
+.staff-photo.has-photo { background:var(--white); color:transparent; }
+.staff-card b { display:block; font-size:.82rem; margin-bottom:5px; }
+.staff-card span { font-size:.72rem; color:var(--muted); }
+@media (max-width:480px) { .staff-grid { grid-template-columns:repeat(2,1fr); } }
+
+/* Principal photo avatar */
+.avatar[data-principal-photo]:not(.has-photo) { background:var(--ink); color:var(--lime); }
+.avatar[data-principal-photo].has-photo { background-size:cover; background-position:center; color:transparent; }
+.avatar.has-photo { background-size:cover; background-position:center; color:transparent; }
+
 /* Legacy img-manager (kept for crop dialog reuse) */
 .img-upload-btn { cursor:pointer; }.img-empty { margin:24px 0 0; color:var(--muted); font-size:.85rem; }.img-empty.error { color:var(--clay); }
 

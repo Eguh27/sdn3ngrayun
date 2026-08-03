@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SDN 3 Ngrayun </title>
   <meta name="description" content="Website profil resmi SD Negeri 3 Ngrayun, Desa Sambiganen, Kecamatan Ngrayun, Kabupaten Ponorogo, Jawa Timur.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -85,7 +86,7 @@
       </div>
       <div class="kepsek-spotlight reveal">
         <div class="kepsek">
-          <div class="avatar">KS</div>
+          <div class="avatar" data-principal-photo>KS</div>
           <div>
             <b data-content="school.principal">Didik Nurochim, S.Pd., M.Pd</b>
             <span>Kepala Sekolah SDN 3 Ngrayun</span>
@@ -98,8 +99,19 @@
         <div class="info-card"><div class="ic-label">Akreditasi</div><div class="ic-value" data-content="school.accreditation">B</div><div class="ic-sub">Akreditasi sekolah</div></div>
         <div class="info-card"><div class="ic-label">Tahun Berdiri</div><div class="ic-value" data-content="school.established">1975</div><div class="ic-sub">Tahun berdiri sekolah</div></div>
         <div class="info-card"><div class="ic-label">Status</div><div class="ic-value" data-content="school.status">Negeri</div><div class="ic-sub">Sekolah Dasar Negeri</div></div>
-        <div class="info-card"><div class="ic-label">Jumlah Siswa</div><div class="ic-value" data-content="school.students">xx</div><div class="ic-sub">Perbarui di Admin</div></div>
-        <div class="info-card"><div class="ic-label">Jumlah Guru</div><div class="ic-value" data-content="school.teachers">xx</div><div class="ic-sub">Perbarui di Admin</div></div>
+        <div class="info-card"><div class="ic-label">Jumlah Siswa</div><div class="ic-value" data-content="school.students">xx</div><div class="ic-sub">Siswa aktif</div></div>
+        <div class="info-card"><div class="ic-label">Jumlah Guru</div><div class="ic-value" data-content="school.teachers">xx</div><div class="ic-sub">Guru &amp; tenaga kependidikan</div></div>
+      </div>
+      <div class="staff-section reveal">
+        <h3>Guru &amp; Tenaga Kependidikan</h3>
+        <p>Pendidik dan tenaga kependidikan yang mendampingi tumbuh kembang siswa di SDN 3 Ngrayun.</p>
+        <div class="staff-grid" data-staff>
+          <div class="staff-card">
+            <div class="staff-photo">—</div>
+            <b>Nama Guru</b>
+            <span>Jabatan</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -196,15 +208,15 @@
       <div class="section-head reveal">
         <span class="eyebrow">Dokumentasi</span>
         <h2>Galeri Sekolah</h2>
-        <p>Kumpulan foto kegiatan dan momen di SDN 3 Ngrayun. <span data-editable>Gunakan foto landscape rasio 16:9, minimal 1600 × 900 px; objek utama sebaiknya berada di bagian tengah agar aman saat dipotong oleh kartu.</span></p>
+        <p>Kumpulan foto kegiatan dan momen di SDN 3 Ngrayun.</p>
       </div>
       <div class="galeri-grid reveal">
-        <div class="g-item g1" data-image="content.images.gallery.learning" data-detail-card data-card-title="Kegiatan Belajar Mengajar" data-card-detail="Ruang untuk menyimpan foto kegiatan belajar di kelas, kerja kelompok, dan momen literasi siswa." role="button" tabindex="0" aria-label="Buka detail Kegiatan Belajar Mengajar"><span>Kegiatan Belajar Mengajar</span></div>
-        <div class="g-item g2" data-image="content.images.gallery.ceremony" data-detail-card data-card-title="Upacara Bendera" data-card-detail="Dokumentasi upacara rutin, peringatan hari besar, dan pembiasaan disiplin di sekolah." role="button" tabindex="0" aria-label="Buka detail Upacara Bendera"><span>Upacara Bendera</span></div>
-        <div class="g-item g3" data-image="content.images.gallery.scouts" data-detail-card data-card-title="Ekstrakurikuler Pramuka" data-card-detail="Simpan foto kegiatan latihan, jelajah, permainan kelompok, dan pembelajaran karakter." role="button" tabindex="0" aria-label="Buka detail Ekstrakurikuler Pramuka"><span>Ekstrakurikuler Pramuka</span></div>
-        <div class="g-item g4" data-image="content.images.gallery.achievements" data-detail-card data-card-title="Lomba &amp; Prestasi" data-card-detail="Tempat untuk menampilkan dokumentasi lomba, penyerahan penghargaan, serta karya siswa." role="button" tabindex="0" aria-label="Buka detail Lomba dan Prestasi"><span>Lomba &amp; Prestasi</span></div>
-        <div class="g-item g5" data-image="content.images.gallery.environment" data-detail-card data-card-title="Lingkungan Sekolah" data-card-detail="Dokumentasi kebun, halaman, kerja bakti, dan suasana sekolah yang asri." role="button" tabindex="0" aria-label="Buka detail Lingkungan Sekolah"><span>Lingkungan Sekolah</span></div>
-        <div class="g-item g6" data-image="content.images.gallery.specialDay" data-detail-card data-card-title="Hari Istimewa" data-card-detail="Dokumentasi kegiatan perayaan, kunjungan, dan momen kebersamaan warga sekolah." role="button" tabindex="0" aria-label="Buka detail Hari Istimewa"><span>Hari Istimewa</span></div>
+        <div class="g-item g1" data-image="content.images.gallery.learning" data-gallery-key="learning" data-detail-card data-card-title="Kegiatan Belajar Mengajar" data-card-detail="Momen belajar di kelas, kerja kelompok, dan literasi siswa SDN 3 Ngrayun." role="button" tabindex="0" aria-label="Buka detail Kegiatan Belajar Mengajar"><span>Kegiatan Belajar Mengajar</span></div>
+        <div class="g-item g2" data-image="content.images.gallery.ceremony" data-gallery-key="ceremony" data-detail-card data-card-title="Upacara Bendera" data-card-detail="Dokumentasi upacara rutin, peringatan hari besar, dan pembiasaan disiplin di sekolah." role="button" tabindex="0" aria-label="Buka detail Upacara Bendera"><span>Upacara Bendera</span></div>
+        <div class="g-item g3" data-image="content.images.gallery.scouts" data-gallery-key="scouts" data-detail-card data-card-title="Ekstrakurikuler Pramuka" data-card-detail="Simpan foto kegiatan latihan, jelajah, permainan kelompok, dan pembelajaran karakter." role="button" tabindex="0" aria-label="Buka detail Ekstrakurikuler Pramuka"><span>Ekstrakurikuler Pramuka</span></div>
+        <div class="g-item g4" data-image="content.images.gallery.achievements" data-gallery-key="achievements" data-detail-card data-card-title="Lomba &amp; Prestasi" data-card-detail="Tempat untuk menampilkan dokumentasi lomba, penyerahan penghargaan, serta karya siswa." role="button" tabindex="0" aria-label="Buka detail Lomba dan Prestasi"><span>Lomba &amp; Prestasi</span></div>
+        <div class="g-item g5" data-image="content.images.gallery.environment" data-gallery-key="environment" data-detail-card data-card-title="Lingkungan Sekolah" data-card-detail="Dokumentasi kebun, halaman, kerja bakti, dan suasana sekolah yang asri." role="button" tabindex="0" aria-label="Buka detail Lingkungan Sekolah"><span>Lingkungan Sekolah</span></div>
+        <div class="g-item g6" data-image="content.images.gallery.specialDay" data-gallery-key="specialDay" data-detail-card data-card-title="Hari Istimewa" data-card-detail="Dokumentasi kegiatan perayaan, kunjungan, dan momen kebersamaan warga sekolah." role="button" tabindex="0" aria-label="Buka detail Hari Istimewa"><span>Hari Istimewa</span></div>
       </div>
       <a class="section-link" href="album.html">Buka album dokumentasi <span>→</span></a>
     </div>

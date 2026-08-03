@@ -15,20 +15,20 @@ Website profil resmi SD Negeri 3 Ngrayun, Desa Sambiganen, Kecamatan Ngrayun, Ka
 node server.js
 ```
 
-Server berjalan di port **5000** (dikonfigurasi via env var `PORT`).
+Server berjalan di port **4147** secara default (dikonfigurasi via env var `PORT`). Saat dijalankan di Replit, gunakan `PORT=5000` agar cocok dengan konfigurasi `.replit`.
 
 ## Halaman
 
-| URL                  | File               | Keterangan                        |
-|---------------------|--------------------|-----------------------------------|
-| `/`                 | index.html         | Beranda utama                     |
-| `/admin`            | admin-login.html   | Halaman login admin               |
-| `/admin/dashboard`  | admin.html         | Dashboard admin (perlu login)     |
-| `/ekstrakurikuler`  | ekstrakurikuler.html | Detail ekskul                   |
-| `/album`            | album.html         | Album galeri                      |
-| `/prestasi`         | prestasi.html      | Arsip prestasi                    |
-| `/berita`           | berita.html        | Halaman berita                    |
-| `/video`            | video.html         | Halaman video                     |
+| URL                 | File                | Keterangan                        |
+|---------------------|---------------------|-----------------------------------|
+| `/`                 | index.html          | Beranda utama                     |
+| `/admin`            | admin-login.html    | Halaman login admin               |
+| `/admin/dashboard`  | admin.html          | Dashboard admin (perlu login)     |
+| `/ekstrakurikuler`  | ekstrakurikuler.html| Detail ekskul                     |
+| `/album`            | album.html          | Album galeri                      |
+| `/prestasi`         | prestasi.html       | Arsip prestasi                    |
+| `/berita`           | berita.html         | Halaman berita                    |
+| `/video`            | video.html          | Halaman video                     |
 
 ## API endpoints
 
@@ -46,14 +46,14 @@ Server berjalan di port **5000** (dikonfigurasi via env var `PORT`).
 ## Secrets yang diperlukan
 
 - `ADMIN_PASSWORD` — password untuk login ke `/admin`
-- `SESSION_SECRET` — diset tapi belum dipakai server saat ini
 
 ## Cara mengelola konten
 
 1. Buka `/admin` dan login dengan `ADMIN_PASSWORD`
 2. Edit data sekolah, prestasi, berita, video, atau upload foto
-3. Untuk foto: upload di bagian "Foto untuk website", lalu pilih slot "Pasang sebagai" agar foto muncul di halaman publik
-4. Klik "Simpan perubahan"
+3. Kelola data guru & staf (nama, jabatan, foto) di section "Guru & Tenaga Kependidikan"
+4. Atur judul & keterangan tiap foto galeri di section "Kelola Foto Galeri"
+5. Klik "Simpan perubahan"
 
 ## Struktur data gambar
 
