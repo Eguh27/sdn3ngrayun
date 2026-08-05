@@ -70,8 +70,13 @@
   // ==========================================
   // 4. Active Nav Link — IntersectionObserver
   // ==========================================
-  var sections = document.querySelectorAll('main section[id]');
   var navLinks = nav ? nav.querySelectorAll('a') : [];
+  var sections = Array.prototype.filter.call(
+    document.querySelectorAll('main section[id]'),
+    function (section) {
+      return Array.prototype.some.call(navLinks, function (link) { return link.getAttribute('href') === '#' + section.id; });
+    }
+  );
 
   if (sections.length && navLinks.length && 'IntersectionObserver' in window) {
     var navObserver = new IntersectionObserver(

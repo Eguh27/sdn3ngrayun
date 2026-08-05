@@ -24,6 +24,50 @@ const sessions = new Map();
 const MIME = { '.css': 'text/css; charset=utf-8', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.webp': 'image/webp', '.avif': 'image/avif', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '.ico': 'image/x-icon' };
 const IMAGES_DIR = path.join(ROOT, 'images');
 const IMAGE_FOLDERS = new Set(['profil', 'galeri', 'ekskul', 'prestasi']);
+const BACKUP_DIR = path.join(ROOT, 'backups');
+const BACKUP_PREFIX = 'sdn3ngrayun-backup-';
+const DATA_BASENAMES = {};
+Object.keys(DATA_FILES).forEach((key) => {
+  DATA_BASENAMES[path.basename(DATA_FILES[key])] = DATA_FILES[key];
+});
+
+function stamp() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+async function createBackup() {
+  await fsp.mkdir(BACKUP_DIR, { recursive: true });
+  const snapshot = { createdAt: new Date().toISOString(), files: {} };
+  for (const basename of Object.keys(DATA_BASENAMES)) {
+    try {
+      snapshot.files[basename] = JSON.parse(await fsp.readFile(DATA_BASENAMES[basename], 'utf8'));
+    } catch {
+      /* lewati file data yang belum ada */
+    }
+  }
+  if (!Object.keys(snapshot.files).length) throw new Error('Tidak ada data untuk di-backup.');
+  const name = `${BACKUP_PREFIX}${stamp()}.json`;
+  await fsp.writeFile(path.join(BACKUP_DIR, name), `${JSON.stringify(snapshot, null, 2)}\n`, 'utf8');
+  return name;
+}
+
+async function listBackups() {
+  await fsp.mkdir(BACKUP_DIR, { recursive: true });
+  const entries = await fsp.readdir(BACKUP_DIR, { withFileTypes: true });
+  return await Promise.all(entries.filter((entry) => entry.isFile() && entry.name.startsWith(BACKUP_PREFIX) && entry.name.endsWith('.json')).map(async (entry) => {
+    const stat = await fsp.stat(path.join(BACKUP_DIR, entry.name));
+    let createdAt = '';
+    try {
+      const parsed = JSON.parse(await fsp.readFile(path.join(BACKUP_DIR, entry.name), 'utf8'));
+      createdAt = parsed.createdAt || '';
+    } catch {
+      /* backup lama tanpa metadata */
+    }
+    return { name: entry.name, size: stat.size, createdAt };
+  }).sort((a, b) => b.name.localeCompare(a.name)));
+}
 
 function send(res, status, body, type = 'text/plain; charset=utf-8') {
   res.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store' });
@@ -182,6 +226,60 @@ async function api(req, res, pathname) {
     }
     return true;
   }
+  if (pathname === '/api/admin/backup' && req.method === 'POST') {
+    if (!authorised(req)) {
+      send(res, 401, JSON.stringify({ error: 'Silakan login sebagai admin terlebih dahulu.' }), MIME['.json']);
+      return true;
+    }
+    try {
+      const name = await createBackup();
+      send(res, 200, JSON.stringify({ ok: true, name }), MIME['.json']);
+    } catch (error) {
+      send(res, 400, JSON.stringify({ error: error.message || 'Gagal membuat backup' }), MIME['.json']);
+    }
+    return true;
+  }
+  if (pathname === '/api/admin/backups' && req.method === 'GET') {
+    if (!authorised(req)) {
+      send(res, 401, JSON.stringify({ error: 'Silakan login sebagai admin terlebih dahulu.' }), MIME['.json']);
+      return true;
+    }
+    try {
+      const files = await listBackups();
+      send(res, 200, JSON.stringify({ ok: true, files }), MIME['.json']);
+    } catch (error) {
+      send(res, 400, JSON.stringify({ error: error.message || 'Tidak dapat membaca daftar backup' }), MIME['.json']);
+    }
+    return true;
+  }
+  if (pathname === '/api/admin/restore' && req.method === 'POST') {
+    if (!authorised(req)) {
+      send(res, 401, JSON.stringify({ error: 'Silakan login sebagai admin terlebih dahulu.' }), MIME['.json']);
+      return true;
+    }
+    try {
+      const payload = JSON.parse(await readBody(req));
+      const name = path.basename(String(payload.file || ''));
+      if (!name.startsWith(BACKUP_PREFIX) || !name.endsWith('.json')) throw new Error('Nama backup tidak valid.');
+      const snapshot = JSON.parse(await fsp.readFile(path.join(BACKUP_DIR, name), 'utf8'));
+      if (!snapshot || typeof snapshot.files !== 'object') throw new Error('Isi file backup tidak valid.');
+      let restored = 0;
+      for (const [basename, value] of Object.entries(snapshot.files)) {
+        const target = DATA_BASENAMES[basename];
+        if (!target) continue;
+        if (basename === 'site.json' && !validContent(value)) throw new Error('Isi site.json pada backup tidak valid.');
+        const tempFile = `${target}.${process.pid}.restore.tmp`;
+        await fsp.writeFile(tempFile, `${JSON.stringify(value, null, 2)}\n`, 'utf8');
+        await fsp.rename(tempFile, target);
+        restored += 1;
+      }
+      if (!restored) throw new Error('Tidak ada data yang dapat dipulihkan dari backup ini.');
+      send(res, 200, JSON.stringify({ ok: true, restored, message: `Data dipulihkan dari ${name}.` }), MIME['.json']);
+    } catch (error) {
+      send(res, 400, JSON.stringify({ error: error.message || 'Gagal memulihkan data' }), MIME['.json']);
+    }
+    return true;
+  }
   const dataFile = DATA_FILES[pathname];
   if (!dataFile) return false;
   if (req.method === 'GET') {
@@ -232,7 +330,10 @@ async function serveStatic(req, res, pathname) {
   };
   const requested = routes[pathname] || pathname.slice(1);
   const filePath = path.resolve(ROOT, requested || 'index.html');
-  if (!filePath.startsWith(`${ROOT}${path.sep}`) || path.extname(filePath) === '.json') {
+  const blockedSegment = path.relative(ROOT, filePath).split(path.sep).some(function (segment) {
+    return segment === '.git' || segment === 'mentahan' || segment === 'pre' || segment === 'data' || segment === 'backups' || segment.startsWith('.');
+  });
+  if (blockedSegment || !filePath.startsWith(`${ROOT}${path.sep}`) || path.extname(filePath) === '.json') {
     send(res, 403, 'Akses ditolak.');
     return;
   }

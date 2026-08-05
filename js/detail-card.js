@@ -1,7 +1,6 @@
 (function () {
   'use strict';
-  var cards = document.querySelectorAll('[data-detail-card]');
-  if (!cards.length || !('HTMLDialogElement' in window)) return;
+  if (!('HTMLDialogElement' in window)) return;
 
   var dialog = document.createElement('dialog');
   dialog.className = 'detail-modal';
@@ -28,11 +27,19 @@
     closeButton.focus();
   }
 
-  cards.forEach(function (card) {
-    card.addEventListener('click', function () { open(card); });
-    card.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(card); }
-    });
+  // Event delegation: works for static AND dynamically-added cards.
+  document.addEventListener('click', function (event) {
+    var card = event.target.closest('[data-detail-card]');
+    if (card) open(card);
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    var target = event.target;
+    if (!target || target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+    if (target.closest('[data-detail-card]')) {
+      event.preventDefault();
+      open(target.closest('[data-detail-card]'));
+    }
   });
   closeButton.addEventListener('click', function () { dialog.close(); });
   dialog.addEventListener('click', function (event) { if (event.target === dialog) dialog.close(); });

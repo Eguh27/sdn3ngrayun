@@ -8,6 +8,13 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="admin-page">
+  <script>
+    (function () {
+      var dark = false;
+      try { dark = localStorage.getItem('sdnAdminTheme') === 'dark'; } catch (e) {}
+      document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+    })();
+  </script>
   <main class="admin-shell admin-login-shell">
     <a class="admin-back" href="/">← Kembali ke website</a>
     <section class="admin-heading"><span class="eyebrow">Akses pengelola</span><h1>Login admin.</h1><p>Masukkan password pengelola untuk membuka dan mengubah konten sekolah.</p></section>

@@ -42,6 +42,9 @@ Server berjalan di port **4147** secara default (dikonfigurasi via env var `PORT
 - `GET /api/images?folder=` — daftar gambar (admin only)
 - `POST /api/upload` — upload gambar (admin only)
 - `POST /api/image/delete` — hapus gambar (admin only)
+- `POST /api/admin/backup` — buat backup data (admin only)
+- `GET /api/admin/backups` — daftar backup (admin only)
+- `POST /api/admin/restore` — pulihkan data dari backup (admin only)
 
 ## Secrets yang diperlukan
 
@@ -54,6 +57,15 @@ Server berjalan di port **4147** secara default (dikonfigurasi via env var `PORT
 3. Kelola data guru & staf (nama, jabatan, foto) di section "Guru & Tenaga Kependidikan"
 4. Atur judul & keterangan tiap foto galeri di section "Kelola Foto Galeri"
 5. Klik "Simpan perubahan"
+
+## Backup & pemulihan
+
+Semua isi situs (data JSON di `data/`) dapat di-backup ke folder `backups/`:
+
+- **Dari dashboard admin**: section "Backup & pulihkan" → "Buat backup sekarang". Untuk memulihkan, klik "Pulihkan" pada salah satu backup yang terdaftar (data saat ini akan ditimpa).
+- **Dari terminal**: `node backup.js` (buat), `node backup.js --list` (daftar), `node backup.js --restore <file>` (pulihkan).
+
+Folder `backups/` diabaikan oleh git dan tidak dapat diakses langsung lewat web.
 
 ## Struktur data gambar
 

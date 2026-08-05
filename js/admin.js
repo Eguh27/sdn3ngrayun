@@ -12,8 +12,9 @@
   var addMission = document.getElementById('addMission');
   var ekskulFields = document.getElementById('ekskulFields');
   var addEkskul = document.getElementById('addEkskul');
-  var staffFields = document.getElementById('staffFields');
+var staffFields = document.getElementById('staffFields');
   var addStaff = document.getElementById('addStaff');
+  var addGallery = document.getElementById('addGallery');
   var principalPhotoInput = document.getElementById('principalPhotoUpload');
   var logoutButton = document.getElementById('logoutButton');
   var current;
@@ -105,10 +106,27 @@
     imgUpBtn.type = 'button'; imgUpBtn.className = 'admin-add img-upload-btn-inline';
     imgUpBtn.textContent = '⬆ Upload foto artikel';
     imgUpBtn.addEventListener('click', function () {
-      openUploadModal('galeri', function (url) { imageInputEl.value = url; });
+      openUploadModal('galeri', function (url) { imageInputEl.value = url; }, { ratio: '1.777', note: 'Rekomendasi untuk foto artikel berita: potong 16:9.' });
     });
     imageWrap.append(imageInputEl, imgUpBtn);
     imageLabel.appendChild(imageWrap);
+    var imagePreview = document.createElement('div');
+    imagePreview.className = 'img-preview';
+    imagePreview.textContent = 'Pratinjau foto artikel';
+    var syncImagePreview = function () {
+      if (imageInputEl.value) {
+        imagePreview.classList.add('has-img');
+        imagePreview.style.backgroundImage = 'url("' + String(imageInputEl.value).replace(/"/g, '%22') + '")';
+        imagePreview.textContent = '';
+      } else {
+        imagePreview.classList.remove('has-img');
+        imagePreview.style.backgroundImage = '';
+        imagePreview.textContent = 'Pratinjau foto artikel';
+      }
+    };
+    imageInputEl.addEventListener('input', syncImagePreview);
+    syncImagePreview();
+    imageLabel.appendChild(imagePreview);
     var imageSourceField = field('Sumber / kredit foto', 'imageSource', item.imageSource);
     imageSourceField.classList.add('full');
     var authorNameField = field('Nama penulis', 'authorName', author.name);
@@ -162,7 +180,7 @@
     upBtn.type = 'button'; upBtn.className = 'admin-add img-upload-btn-inline';
     upBtn.textContent = '⬆ Upload foto';
     upBtn.addEventListener('click', function () {
-      openUploadModal('profil', function (url) { photoInputEl.value = url; });
+      openUploadModal('profil', function (url) { photoInputEl.value = url; }, { ratio: '1', note: 'Rekomendasi untuk foto guru/staf: potong persegi 1:1.' });
     });
     photoWrap.append(photoInputEl, upBtn);
     photoLabel.appendChild(photoWrap);
@@ -221,24 +239,25 @@
         photo: card.elements.staffPhoto.value.trim()
       };
     }).filter(function (item) { return item.name; });
-    current.site.content = current.site.content || {};
+current.site.content = current.site.content || {};
     current.site.content.albumTitle = form.elements.albumTitle.value.trim();
     current.site.content.galleryInfo = current.site.content.galleryInfo || {};
     var galleryInfo = {};
+    var galleryOrder = [];
     document.querySelectorAll('.gallery-slot-card').forEach(function (card) {
-      var key = card.querySelector('.gallery-slot-meta .gallery-slot-label');
+      var keyEl = card.querySelector('.gallery-slot-key');
       var titleInput = card.querySelector('input[name="galleryTitle"]');
       var detailInput = card.querySelector('textarea[name="galleryDetail"]');
-      var matched = null;
-      gallerySlotDefs.forEach(function (slot) {
-        if (!key) return;
-        if (key.textContent === slot.label) matched = slot.key;
-      });
-      if (matched && titleInput && detailInput) {
-        galleryInfo[matched] = { title: titleInput.value.trim(), detail: detailInput.value.trim() };
-      }
+      var key = keyEl ? keyEl.getAttribute('data-key') : '';
+      if (!key) return;
+      galleryOrder.push(key);
+      galleryInfo[key] = {
+        title: titleInput ? titleInput.value.trim() : '',
+        detail: detailInput ? detailInput.value.trim() : ''
+      };
     });
     current.site.content.galleryInfo = galleryInfo;
+    current.site.content.galleryOrder = galleryOrder;
     current.extracurricular.title = form.elements.extracurricularTitle.value.trim();
     current.extracurricular.items = Array.prototype.map.call(
       ekskulFields.querySelectorAll('.achievement-editor'),
@@ -283,11 +302,106 @@
   addEkskul.addEventListener('click', function () { addEkskulCard({}); });
   if (addStaff) addStaff.addEventListener('click', function () { addStaffCard({}); });
   if (principalPhotoInput) principalPhotoInput.addEventListener('click', function () {
-    openUploadModal('profil', function (url) { if (form.elements.principalPhoto) form.elements.principalPhoto.value = url; });
+    openUploadModal('profil', function (url) { if (form.elements.principalPhoto) form.elements.principalPhoto.value = url; }, { ratio: '1', note: 'Rekomendasi untuk foto kepala sekolah: potong persegi 1:1.' });
   });
   logoutButton.addEventListener('click', function () {
     fetch('/api/admin/logout', { method: 'POST' }).finally(function () { window.location.assign('/admin'); });
   });
+
+  // ==========================================
+  // 8. Backup & Pulihkan
+  // ==========================================
+  var backupListEl = document.getElementById('backupList');
+  var backupNowBtn = document.getElementById('backupNow');
+
+  function formatBytes(bytes) {
+    if (!bytes) return '0 B';
+    var units = ['B', 'KB', 'MB', 'GB'];
+    var i = 0;
+    while (bytes >= 1024 && i < units.length - 1) {
+      bytes /= 1024;
+      i += 1;
+    }
+    return (i ? bytes.toFixed(1).replace(/\.0$/, '') : bytes) + ' ' + units[i];
+  }
+
+  function renderBackups(files) {
+    if (!backupListEl) return;
+    backupListEl.replaceChildren();
+    if (!files.length) {
+      var empty = document.createElement('p');
+      empty.className = 'backup-empty';
+      empty.textContent = 'Belum ada backup. Klik "Buat backup sekarang" untuk menyimpan salinan data.';
+      backupListEl.appendChild(empty);
+      return;
+    }
+    files.forEach(function (file) {
+      var row = document.createElement('div');
+      row.className = 'backup-row';
+      var info = document.createElement('div');
+      info.className = 'backup-info';
+      var name = document.createElement('strong');
+      name.textContent = file.name;
+      var meta = document.createElement('span');
+      var dateText = file.createdAt ? new Date(file.createdAt).toLocaleString('id-ID') : '';
+      meta.textContent = (dateText ? dateText + ' · ' : '') + formatBytes(file.size);
+      info.appendChild(name);
+      info.appendChild(meta);
+      var actions = document.createElement('div');
+      actions.className = 'backup-actions';
+      var restore = document.createElement('button');
+      restore.type = 'button';
+      restore.className = 'admin-add';
+      restore.textContent = 'Pulihkan';
+      restore.addEventListener('click', function () {
+        if (!window.confirm('Pulihkan seluruh data dari "' + file.name + '"? Data saat ini akan ditimpa.')) return;
+        restore.disabled = true;
+        fetch('/api/admin/restore', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file: file.name }) })
+          .then(function (response) { return response.json().then(function (data) { return { ok: response.ok, data: data }; }); })
+          .then(function (result) {
+            if (result.ok) {
+              setMessage('Data dipulihkan dari ' + file.name + '. Memuat ulang…');
+              window.setTimeout(function () { window.location.reload(); }, 600);
+            } else {
+              setMessage(result.data.error || 'Gagal memulihkan data.', true);
+            }
+          })
+          .catch(function () { setMessage('Gagal memulihkan data.', true); })
+          .finally(function () { restore.disabled = false; });
+      });
+      actions.appendChild(restore);
+      row.appendChild(info);
+      row.appendChild(actions);
+      backupListEl.appendChild(row);
+    });
+  }
+
+  function loadBackups() {
+    if (!backupListEl) return;
+    fetch('/api/admin/backups')
+      .then(function (response) { return response.json().then(function (data) { return { ok: response.ok, data: data }; }); })
+      .then(function (result) {
+        if (result.ok) renderBackups(result.data.files || []);
+        else setMessage(result.data.error || 'Gagal memuat daftar backup.', true);
+      })
+      .catch(function () { setMessage('Gagal memuat daftar backup.', true); });
+  }
+
+  if (backupNowBtn) backupNowBtn.addEventListener('click', function () {
+    backupNowBtn.disabled = true;
+    var original = backupNowBtn.textContent;
+    backupNowBtn.textContent = 'Membuat backup…';
+    fetch('/api/admin/backup', { method: 'POST' })
+      .then(function (response) { return response.json().then(function (data) { return { ok: response.ok, data: data }; }); })
+      .then(function (result) {
+        if (result.ok) { setMessage('Backup berhasil dibuat: ' + result.data.name); loadBackups(); }
+        else setMessage(result.data.error || 'Gagal membuat backup.', true);
+      })
+      .catch(function () { setMessage('Gagal membuat backup.', true); })
+      .finally(function () { backupNowBtn.disabled = false; backupNowBtn.textContent = original; });
+  });
+
+  loadBackups();
 
   // ==========================================
   // 7. Upload & Crop — dipakai oleh semua bagian
@@ -301,16 +415,24 @@
   var cropRatioSelect = document.getElementById('cropRatio');
   var cropQuality = document.getElementById('cropQuality');
   var cropQualityLabel = document.getElementById('cropQualityLabel');
+  var cropHintEl = document.getElementById('cropHint');
   var cropApply = document.getElementById('cropApply');
   var cropClose = document.getElementById('cropClose');
   var cropBox = null;
   var selectedFile = null;
   var uploadCallback = null;
   var uploadFolder = 'galeri';
+  var cropDragHandler = null;
 
-  function openUploadModal(folder, callback) {
+  function openUploadModal(folder, callback, preset) {
     uploadFolder = folder || 'galeri';
     uploadCallback = callback || null;
+    if (cropRatioSelect && preset && preset.ratio) {
+      var val = String(preset.ratio);
+      var ratioOptions = { '0': true, '1': true, '1.333': true, '1.777': true, '3': true };
+      if (ratioOptions[val]) cropRatioSelect.value = val;
+    }
+    if (cropHintEl) cropHintEl.textContent = (preset && preset.note) || '';
     imageInput.value = '';
     imageInput.click();
   }
@@ -384,6 +506,8 @@
       updatePreview();
     }
     function onUp() { mode = null; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); }
+    if (cropDragHandler) cropFrame.removeEventListener('mousedown', cropDragHandler);
+    cropDragHandler = onDown;
     cropFrame.addEventListener('mousedown', onDown);
   }
 
@@ -409,11 +533,15 @@
   }
 
   function setupCrop(img) {
+    cropImage.onload = function () {
+      var nw = cropImage.naturalWidth || img.naturalWidth;
+      var nh = cropImage.naturalHeight || img.naturalHeight;
+      cropImage.dataset.nw = nw; cropImage.dataset.nh = nh;
+      var scale = Math.min(1, 900 / nw);
+      cropImage.style.width = Math.round(nw * scale) + 'px'; cropImage.style.height = 'auto';
+      createCropBox(); fitBoxToRatio(parseFloat(cropRatioSelect.value) || 0); setupCropDrag(); updatePreview();
+    };
     cropImage.src = img.src;
-    cropImage.dataset.nw = img.naturalWidth; cropImage.dataset.nh = img.naturalHeight;
-    var scale = Math.min(1, 900 / img.naturalWidth);
-    cropImage.style.width = Math.round(img.naturalWidth * scale) + 'px'; cropImage.style.height = 'auto';
-    createCropBox(); fitBoxToRatio(parseFloat(cropRatioSelect.value) || 0); setupCropDrag(); updatePreview();
   }
 
   function resetCropState() {
@@ -432,7 +560,11 @@
     var reader = new FileReader();
     reader.onload = function () {
       var img = new Image();
-      img.onload = function () { setupCrop(img); cropDialog.showModal(); };
+      img.onload = function () {
+        document.body.classList.add('dialog-open');
+        cropDialog.showModal();
+        setupCrop(img);
+      };
       img.onerror = function () { setMessage('Gambar tidak dapat dibaca.', true); };
       img.src = reader.result;
     };
@@ -467,20 +599,28 @@
       .finally(function () { cropApply.disabled = false; cropApply.textContent = 'Simpan WebP'; });
   });
 
-  cropClose.addEventListener('click', function () { cropDialog.close(); resetCropState(); imageInput.value = ''; selectedFile = null; uploadCallback = null; });
+cropClose.addEventListener('click', function () { cropDialog.close(); resetCropState(); imageInput.value = ''; selectedFile = null; uploadCallback = null; });
   cropDialog.addEventListener('click', function (event) { if (event.target === cropDialog) { cropDialog.close(); resetCropState(); imageInput.value = ''; selectedFile = null; uploadCallback = null; } });
+  cropDialog.addEventListener('close', function () { document.body.classList.remove('dialog-open'); });
 
   // ==========================================
-  // 8. Hero & Galeri — slot management
+  // 8. Hero & Galeri — slot management (dinamis)
   // ==========================================
-  var gallerySlotDefs = [
-    { key: 'learning', label: 'Kegiatan Belajar Mengajar' },
-    { key: 'ceremony', label: 'Upacara Bendera' },
-    { key: 'scouts', label: 'Ekstrakurikuler Pramuka' },
-    { key: 'achievements', label: 'Lomba & Prestasi' },
-    { key: 'environment', label: 'Lingkungan Sekolah' },
-    { key: 'specialDay', label: 'Hari Istimewa' }
-  ];
+  var defaultGalleryKeys = ['learning', 'ceremony', 'scouts', 'achievements', 'environment', 'specialDay'];
+  var defaultGalleryLabels = {
+    learning: 'Kegiatan Belajar Mengajar',
+    ceremony: 'Upacara Bendera',
+    scouts: 'Ekstrakurikuler Pramuka',
+    achievements: 'Lomba & Prestasi',
+    environment: 'Lingkungan Sekolah',
+    specialDay: 'Hari Istimewa'
+  };
+  var galleryCount = 0;
+
+  function galleryKeyExists(key) {
+    var gallery = (current.site.content.images && current.site.content.images.gallery) || {};
+    return typeof gallery[key] !== 'undefined';
+  }
 
   function saveImagePath(pathKey, url, onDone) {
     var parts = pathKey.split('.');
@@ -493,9 +633,14 @@
       .catch(function () { setMessage('Gagal menyimpan foto.', true); });
   }
 
-  function buildSlotCard(key, label, imgUrl, folder, pathKey, info) {
+  function buildSlotCard(key, label, imgUrl, folder, pathKey, info, isCustom) {
     var card = document.createElement('div');
     card.className = 'gallery-slot-card' + (imgUrl ? ' has-img' : '');
+    var keyEl = document.createElement('input');
+    keyEl.type = 'hidden';
+    keyEl.className = 'gallery-slot-key';
+    keyEl.setAttribute('data-key', key);
+    card.appendChild(keyEl);
     var preview = document.createElement('div');
     preview.className = 'gallery-slot-preview';
     if (imgUrl) preview.style.backgroundImage = 'url("' + String(imgUrl).replace(/"/g, '%22') + '")';
@@ -505,9 +650,14 @@
     var upBtn = document.createElement('button'); upBtn.type = 'button'; upBtn.className = 'admin-add';
     upBtn.textContent = imgUrl ? 'Ganti foto' : '+ Upload foto';
     upBtn.addEventListener('click', function () {
+      var preset = pathKey === 'hero'
+        ? { ratio: '1.777', note: 'Rekomendasi untuk foto hero beranda: potong 16:9 (min. 1600×900 px).' }
+        : (folder === 'profil'
+            ? { ratio: '1', note: 'Rekomendasi untuk foto profil: potong persegi 1:1.' }
+            : { ratio: '1.777', note: 'Rekomendasi untuk foto galeri: potong 16:9.' });
       openUploadModal(folder, function (url) {
         saveImagePath(pathKey, url, function () { if (pathKey === 'hero') renderHeroSlot(); else renderGallerySlots(); });
-      });
+      }, preset);
     });
     actions.appendChild(upBtn);
     if (imgUrl) {
@@ -517,6 +667,16 @@
         saveImagePath(pathKey, '', function () { if (pathKey === 'hero') renderHeroSlot(); else renderGallerySlots(); });
       });
       actions.appendChild(delBtn);
+    }
+    if (isCustom) {
+      var rmBtn = document.createElement('button'); rmBtn.type = 'button'; rmBtn.className = 'admin-remove'; rmBtn.textContent = 'Hapus galeri';
+      rmBtn.addEventListener('click', function () {
+        if (!confirm('Hapus galeri "' + label + '" dari daftar? Foto di server tidak dihapus.')) return;
+        current.site.content.images.gallery = current.site.content.images.gallery || {};
+        delete current.site.content.images.gallery[key];
+        renderGallerySlots();
+      });
+      actions.appendChild(rmBtn);
     }
     meta.append(lbl, actions);
     card.append(preview, meta);
@@ -547,17 +707,128 @@
     if (!container || !current) return;
     container.replaceChildren();
     var heroUrl = (current.site.content.images && current.site.content.images.hero) || '';
-    container.appendChild(buildSlotCard('hero', 'Foto Hero Beranda (rasio 16:9, min. 1600×900 px)', heroUrl, 'profil', 'hero'));
+    container.appendChild(buildSlotCard('hero', 'Foto Hero Beranda (rasio 16:9, min. 1600×900 px)', heroUrl, 'profil', 'hero', null, false));
   }
 
   function renderGallerySlots() {
     var grid = document.getElementById('gallerySlotGrid');
     if (!grid || !current) return;
     grid.replaceChildren();
-    var gallery = (current.site.content.images && current.site.content.images.gallery) || {};
-    var galleryInfo = (current.site.content && current.site.content.galleryInfo) || {};
-    gallerySlotDefs.forEach(function (slot) {
-      grid.appendChild(buildSlotCard(slot.key, slot.label, gallery[slot.key] || '', 'galeri', 'gallery.' + slot.key, galleryInfo[slot.key]));
+    var content = current.site.content || {};
+    var gallery = (content.images && content.images.gallery) || {};
+    var galleryInfo = content.galleryInfo || {};
+    var order = Array.isArray(content.galleryOrder) && content.galleryOrder.length ? content.galleryOrder : defaultGalleryKeys;
+    var seen = {};
+    order.forEach(function (key) {
+      seen[key] = true;
+      var label = defaultGalleryLabels[key] || ((galleryInfo[key] && galleryInfo[key].title) || key);
+      var isCustom = defaultGalleryKeys.indexOf(key) === -1;
+      grid.appendChild(buildSlotCard(key, label, gallery[key] || '', 'galeri', 'gallery.' + key, galleryInfo[key], isCustom));
+    });
+    Object.keys(gallery).forEach(function (key) {
+      if (seen[key]) return;
+      var label = (galleryInfo[key] && galleryInfo[key].title) || key;
+      var isCustom = defaultGalleryKeys.indexOf(key) === -1;
+      grid.appendChild(buildSlotCard(key, label, gallery[key], 'galeri', 'gallery.' + key, galleryInfo[key], isCustom));
     });
   }
+
+  function addGalleryCard() {
+    galleryCount += 1;
+    var content = current.site.content || {};
+    content.images = content.images || {};
+    content.images.gallery = content.images.gallery || {};
+    var base = 'gallery' + galleryCount;
+    var key = base;
+    while (galleryKeyExists(key)) {
+      galleryCount += 1;
+      key = 'gallery' + galleryCount;
+    }
+    content.images.gallery[key] = '';
+    content.galleryOrder = content.galleryOrder || [];
+    content.galleryOrder.push(key);
+    renderGallerySlots();
+  }
+
+  if (addGallery) addGallery.addEventListener('click', addGalleryCard);
+
+  // ==========================================
+  // 9. UI — tema gelap/terang, lipat bagian, navigasi sidebar
+  // ==========================================
+  function currentThemeDark() { return document.body.getAttribute('data-theme') === 'dark'; }
+
+  var themeToggle = document.getElementById('themeToggle');
+  function syncThemeButton() {
+    var dark = currentThemeDark();
+    if (themeToggle) {
+      themeToggle.textContent = dark ? '☀️ Tema terang' : '🌙 Tema gelap';
+      themeToggle.setAttribute('aria-pressed', String(dark));
+    }
+  }
+  syncThemeButton();
+  if (themeToggle) themeToggle.addEventListener('click', function () {
+    var dark = !currentThemeDark();
+    document.body.setAttribute('data-theme', dark ? 'dark' : 'light');
+    try { localStorage.setItem('sdnAdminTheme', dark ? 'dark' : 'light'); } catch (e) {}
+    syncThemeButton();
+  });
+
+  function setSectionCollapsed(section, collapsed) {
+    var toggle = section.querySelector('.sec-collapse');
+    section.classList.toggle('collapsed', collapsed);
+    if (toggle) toggle.setAttribute('aria-expanded', String(!collapsed));
+  }
+
+  document.addEventListener('click', function (event) {
+    var target = event.target;
+    if (target.closest) {
+      var collapseBtn = target.closest('.sec-collapse');
+      if (collapseBtn) {
+        var section = collapseBtn.closest('.admin-section');
+        if (section) setSectionCollapsed(section, !section.classList.contains('collapsed'));
+        return;
+      }
+      var sideLink = target.closest('.sidebar-nav a[data-sec]');
+      if (sideLink) {
+        var sectionEl = document.getElementById(sideLink.getAttribute('data-sec'));
+        if (sectionEl) setSectionCollapsed(sectionEl, false);
+      }
+    }
+  });
+
+  var collapseAllToggle = document.getElementById('collapseAllToggle');
+  if (collapseAllToggle) {
+    var allCollapsed = false;
+    collapseAllToggle.addEventListener('click', function () {
+      allCollapsed = !allCollapsed;
+      document.querySelectorAll('.admin-section').forEach(function (section) { setSectionCollapsed(section, allCollapsed); });
+      collapseAllToggle.textContent = allCollapsed ? 'Buka semua' : 'Lipat semua';
+    });
+  }
+
+  var sidebarFilter = document.getElementById('sidebarFilter');
+  if (sidebarFilter) {
+    sidebarFilter.addEventListener('input', function () {
+      var q = sidebarFilter.value.trim().toLowerCase();
+      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
+        link.classList.toggle('hidden-link', q && link.textContent.toLowerCase().indexOf(q) === -1);
+      });
+      document.querySelectorAll('.sidebar-nav .side-group').forEach(function (group) { group.style.display = q ? 'none' : ''; });
+    });
+  }
+
+  var sideLinks = Array.prototype.slice.call(document.querySelectorAll('.sidebar-nav a[data-sec]'));
+  var spySections = sideLinks.map(function (link) { return document.getElementById(link.getAttribute('data-sec')); }).filter(Boolean);
+  if (spySections.length && 'IntersectionObserver' in window) {
+    var scrollSpy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var id = entry.target.id;
+        sideLinks.forEach(function (link) { link.classList.toggle('active', link.getAttribute('data-sec') === id); });
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    spySections.forEach(function (section) { scrollSpy.observe(section); });
+  }
 })();
+
+

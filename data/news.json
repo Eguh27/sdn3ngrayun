@@ -3,37 +3,45 @@
   "items": [
     {
       "date": "12 Januari 2026",
-      "title": "SDN 3 Ngrayun Meriahkan Peringatan Hari Guru Nasional",
-      "subtitle": "Upacara dan pentas seni dari siswa untuk para guru.",
-      "excerpt": "Siswa menampilkan puisi, tari, dan nyanyian sebagai bentuk apresiasi kepada guru dalam peringatan Hari Guru Nasional 2025.",
-      "body": "SDN 3 Ngrayun menggelar peringatan Hari Guru Nasional dengan penuh kehangatan. Seluruh siswa berkumpul di halaman sekolah mengikuti upacara bendera yang dipimpin langsung oleh Kepala Sekolah.\n\nSetelah upacara, panitia siswa menampilkan berbagai pentas seni seperti puisi, tari tradisional, dan nyanyian lagu nasional. Kegiatan ini menjadi ajang bagi siswa untuk menunjukkan bakat sekaligus mengucapkan terima kasih kepada para guru.\n\n\"Kami berharap kegiatan seperti ini terus menumbuhkan rasa hormat dan kasih sayang antara siswa dan guru,\" ujar Kepala Sekolah SDN 3 Ngrayun.",
-      "image": "",
-      "imageSource": "",
-      "author": { "name": "Admin Sekolah", "role": "Kontributor" },
+      "title": "Kegiatan Jumat Beramal SDN 3 Ngrayun",
+      "subtitle": "Menumbuhkan kepedulian dan kebiasaan berbagi sejak dini.",
+      "excerpt": "Setiap Jumat, siswa SDN 3 Ngrayun membiasakan diri beramal dan berbagi. Kegiatan ini menjadi salah satu pembiasaan harian untuk menumbuhkan karakter peduli sesama.",
+      "body": "Kegiatan Jumat Beramal menjadi salah satu program pembiasaan di SDN 3 Ngrayun. Para siswa diajak untuk menyisihkan sebagian uang saku mereka untuk disumbangkan kepada teman yang membutuhkan.Kegiatan ini berjalan setiap hari Jumat setelah senam pagi. Selain mengajarkan tentang berbagi, kegiatan ini juga menjadi sarana mempererat rasa kebersamaan antar siswa.Kepala sekolah menyampaikan apresiasi atas antusiasme siswa dan orang tua dalam mendukung program berbagi ini. Diharapkan kebiasaan baik ini terus berlanjut dan menjadi bagian dari karakter siswa.",
+      "image": "/images/galeri/upacara.jpg",
+      "imageSource": "Dokumentasi SDN 3 Ngrayun",
+      "author": {
+        "name": "Admin Sekolah",
+        "role": "Kontributor"
+      },
       "url": ""
     },
     {
-      "date": "5 Februari 2026",
-      "title": "Pembiasaan Jumat Beramal Mengajarkan Sedekah Sejak Dini",
-      "subtitle": "Kegiatan rutin setiap Jumat di lingkungan sekolah.",
-      "excerpt": "Jumat Beramal menjadi salah satu pembiasaan rutin untuk menumbuhkan kepedulian sosial siswa.",
-      "body": "Setiap Jumat pagi, siswa SDN 3 Ngrayun membawa sedekah sukarela yang kemudian dikumpulkan dan disalurkan untuk kegiatan sosial maupun bantuan bagi warga sekolah yang membutuhkan.\n\nKegiatan ini merupakan bagian dari pembiasaan harian sekolah yang bertujuan membentuk karakter religius dan peduli sejak usia dini. Guru-guru mendampingi siswa agar memahami makna berbagi tanpa paksaan.\n\nSelain Jumat Beramal, sekolah juga rutin melaksanakan senam pagi dan kegiatan madin (madrasah diniyah) setiap Senin hingga Rabu.",
-      "image": "",
-      "imageSource": "",
-      "author": { "name": "Admin Sekolah", "role": "Kontributor" },
+      "date": "5 Januari 2026",
+      "title": "Pembelajaran Ekstrakurikuler Tari Tradisional",
+      "subtitle": "Melestarikan budaya lewat gerak dan seni.",
+      "excerpt": "Ekstrakurikuler tari kembali berlatih di akhir pekan. Siswa belajar gerak dasar tari tradisional sebagai bentuk pelestarian budaya Jawa.",
+      "body": "Ekstrakurikuler tari di SDN 3 Ngrayun kembali mengadakan latihan rutin pada pekan keempat setiap bulannya. Siswa belajar berbagai gerak dasar tari tradisional dengan penuh semangat.Latihan dipandu langsung oleh pembina ekstrakurikuler. Selain mengasah keterampilan gerak, kegiatan ini juga menanamkan kecintaan siswa pada seni dan budaya tradisional.Kegiatan ini terbuka bagi seluruh siswa yang berminat dan dilaksanakan di halaman sekolah.",
+      "image": "/images/galeri/lingkungan.jpg",
+      "imageSource": "Dokumentasi SDN 3 Ngrayun",
+      "author": {
+        "name": "Admin Sekolah",
+        "role": "Kontributor"
+      },
       "url": ""
     },
     {
-      "date": "21 Februari 2026",
-      "title": "Intan Raih Juara 3 Lomba Menyanyi Solo Tingkat Kecamatan",
-      "subtitle": "Prestasi membanggakan dari siswa SDN 3 Ngrayun.",
-      "excerpt": "Intan, siswa SDN 3 Ngrayun, berhasil meraih Juara 3 pada lomba menyanyi solo tingkat Kecamatan Ngrayun.",
-      "body": "Kabar membanggakan datang dari Intan, siswa SDN 3 Ngrayun, yang berhasil meraih Juara 3 dalam lomba menyanyi solo tingkat Kecamatan Ngrayun.\n\nPerlombaan ini diikuti oleh perwakilan sekolah dasar se-Kecamatan Ngrayun. Dengan persiapan latihan intensif bersama guru, Intan mampu membawakan lagu dengan percaya diri dan mengharumkan nama sekolah.\n\nPihak sekolah mengucapkan selamat dan terima kasih atas kerja keras Intan serta dukungan para guru pembimbing. Semoga prestasi ini memotivasi siswa lain untuk terus mengembangkan bakatnya.",
-      "image": "",
-      "imageSource": "",
-      "author": { "name": "Admin Sekolah", "role": "Kontributor" },
+      "date": "28 Desember 2025",
+      "title": "Perayaan Hari Istimewa Bersama Warga Sekolah",
+      "subtitle": "Momen kebersamaan yang mempererat kekeluargaan SDN 3 Ngrayun.",
+      "excerpt": "Kegiatan hari istimewa diisi dengan berbagai pertunjukan dan kebersamaan, menjadi pengingat suasana kekeluargaan di sekolah.",
+      "body": "SDN 3 Ngrayun menggelar kegiatan hari istimewa yang diikuti seluruh warga sekolah. Kegiatan ini menjadi ajang untuk mempererat kebersamaan dan kekeluargaan.Berbagai pertunjukan ditampilkan oleh para siswa, mulai dari seni, musik, hingga permainan tradisional. Orang tua juga turut hadir untuk mendukung penampilan anak-anak mereka.Kegiatan seperti ini diharapkan mampu membangun rasa bangga dan cinta siswa terhadap sekolahnya.",
+      "image": "/images/galeri/hariistimewa.jpg",
+      "imageSource": "Dokumentasi SDN 3 Ngrayun",
+      "author": {
+        "name": "Admin Sekolah",
+        "role": "Kontributor"
+      },
       "url": ""
     }
   ]
 }
-

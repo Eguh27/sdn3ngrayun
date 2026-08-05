@@ -1,2 +1,21 @@
-{"title":"Video SDN 3 Ngrayun","channelUrl":"","items":[{"title":"Profil Singkat SDN 3 Ngrayun","url":"https://www.youtube.com/watch?v=ysz5S6PUM-U","description":"Video profil singkat sekolah, fasilitas, dan suasana belajar di SDN 3 Ngrayun."},{"title":"Kegiatan Pramuka SDN 3 Ngrayun","url":"https://www.youtube.com/watch?v=aqz-KE-bpKQ","description":"Dokumentasi latihan dan kegiatan pramuka siswa SDN 3 Ngrayun."},{"title":"Peringatan Hari Guru di SDN 3 Ngrayun","url":"https://www.youtube.com/watch?v=jNQXAC9IVRw","description":"Rekaman upacara dan pentas seni dalam peringatan Hari Guru Nasional."}]}
-
+{
+  "title": "Video SDN 3 Ngrayun",
+  "channelUrl": "https://www.youtube.com/@SDN3Ngrayun",
+  "items": [
+    {
+      "title": "Bergandeng Tangan",
+      "url": "https://www.youtube.com/watch?v=lBTgRMDiZpc",
+      "description": "Video profil singkat sekolah"
+    },
+    {
+      "title": "Kegiatan Pramuka SDN 3 Ngrayun",
+      "url": "https://www.youtube.com/watch?v=aqz-KE-bpKQ",
+      "description": "Dokumentasi latihan dan kegiatan pramuka siswa SDN 3 Ngrayun."
+    },
+    {
+      "title": "Peringatan Hari Guru di SDN 3 Ngrayun",
+      "url": "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+      "description": "Rekaman upacara dan pentas seni dalam peringatan Hari Guru Nasional."
+    }
+  ]
+}

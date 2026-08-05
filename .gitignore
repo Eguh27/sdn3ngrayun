@@ -1,0 +1,6 @@
+mentahan/
+pre/
+backups/
+*.tmp
+*.log
+.DS_Store
